@@ -1240,3 +1240,131 @@ msgstr "Quick Connect authentication failed. Please try again."
 msgctxt "#30682"
 msgid "Quick Connect timed out. Please try again."
 msgstr "Quick Connect timed out. Please try again."
+
+msgctxt "#30683"
+msgid "Movies view ID"
+msgstr "Movies view ID"
+
+msgctxt "#30684"
+msgid "TV Shows view ID"
+msgstr "TV Shows view ID"
+
+msgctxt "#30685"
+msgid "Seasons view ID"
+msgstr "Seasons view ID"
+
+msgctxt "#30686"
+msgid "Episodes view ID"
+msgstr "Episodes view ID"
+
+msgctxt "#30687"
+msgid "Collections view ID"
+msgstr "Collections view ID"
+
+msgctxt "#30688"
+msgid "0.5 Mbps"
+msgstr "0.5 Mbps"
+
+msgctxt "#30689"
+msgid "1 Mbps"
+msgstr "1 Mbps"
+
+msgctxt "#30690"
+msgid "1.5 Mbps"
+msgstr "1.5 Mbps"
+
+msgctxt "#30691"
+msgid "2.0 Mbps"
+msgstr "2.0 Mbps"
+
+msgctxt "#30692"
+msgid "2.5 Mbps"
+msgstr "2.5 Mbps"
+
+msgctxt "#30693"
+msgid "3.0 Mbps"
+msgstr "3.0 Mbps"
+
+msgctxt "#30694"
+msgid "4.0 Mbps"
+msgstr "4.0 Mbps"
+
+msgctxt "#30695"
+msgid "5.0 Mbps"
+msgstr "5.0 Mbps"
+
+msgctxt "#30696"
+msgid "6.0 Mbps"
+msgstr "6.0 Mbps"
+
+msgctxt "#30697"
+msgid "7.0 Mbps"
+msgstr "7.0 Mbps"
+
+msgctxt "#30698"
+msgid "8.0 Mbps"
+msgstr "8.0 Mbps"
+
+msgctxt "#30699"
+msgid "9.0 Mbps"
+msgstr "9.0 Mbps"
+
+msgctxt "#30700"
+msgid "10.0 Mbps"
+msgstr "10.0 Mbps"
+
+msgctxt "#30701"
+msgid "12.0 Mbps"
+msgstr "12.0 Mbps"
+
+msgctxt "#30702"
+msgid "14.0 Mbps"
+msgstr "14.0 Mbps"
+
+msgctxt "#30703"
+msgid "16.0 Mbps"
+msgstr "16.0 Mbps"
+
+msgctxt "#30704"
+msgid "18.0 Mbps"
+msgstr "18.0 Mbps"
+
+msgctxt "#30705"
+msgid "20.0 Mbps"
+msgstr "20.0 Mbps"
+
+msgctxt "#30706"
+msgid "25.0 Mbps"
+msgstr "25.0 Mbps"
+
+msgctxt "#30707"
+msgid "30.0 Mbps"
+msgstr "30.0 Mbps"
+
+msgctxt "#30708"
+msgid "35.0 Mbps"
+msgstr "35.0 Mbps"
+
+msgctxt "#30709"
+msgid "40.0 Mbps"
+msgstr "40.0 Mbps"
+
+msgctxt "#30710"
+msgid "100.0 Mbps"
+msgstr "100.0 Mbps"
+
+msgctxt "#30711"
+msgid "1000.0 Mbps [default]"
+msgstr "1000.0 Mbps [default]"
+
+msgctxt "#30712"
+msgid "Maximum"
+msgstr "Maximum"
+
+msgctxt "#30713"
+msgid "7.0 Mbps [default]"
+msgstr "7.0 Mbps [default]"
+
+msgctxt "#30714"
+msgid "1000.0 Mbps"
+msgstr "1000.0 Mbps"
