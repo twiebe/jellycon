@@ -3,7 +3,7 @@
 import xbmcaddon
 
 from resources.lib.lazylogger import LazyLogger
-from resources.lib.functions import main_entry_point
+from resources.lib.functions import main_entry_point, handle_entry_point_error
 from resources.lib.tracking import set_timing_enabled
 
 log = LazyLogger('default')
@@ -15,4 +15,7 @@ if log_timing_data:
 
 log.debug("About to enter mainEntryPoint()")
 
-main_entry_point()
+try:
+    main_entry_point()
+except Exception:
+    handle_entry_point_error()

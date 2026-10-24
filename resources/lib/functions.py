@@ -7,6 +7,7 @@ import os
 import time
 import cProfile
 import pstats
+import traceback
 
 import xbmcplugin
 import xbmcgui
@@ -53,6 +54,25 @@ user_details = load_user_details()
 
 
 @timer
+def handle_entry_point_error():
+    '''
+    Called with the exception of a failed plugin call. Much of the listing
+    code does not expect empty data from a failed request and crashes on it.
+    When a server request just failed, tell the user why instead of Kodi's
+    generic "check the log" message. Any other error is a bug: re-raise it.
+    '''
+    if not api.last_error:
+        raise
+    log.error("Plugin call failed after a server error: {0}".format(
+        traceback.format_exc()))
+    api.notify_failed(30697)
+
+    # Tell Kodi the listing failed, so it does not wait for one
+    handle = int(sys.argv[1]) if len(sys.argv) > 1 and sys.argv[1].isdigit() else -1
+    if handle >= 0:
+        xbmcplugin.endOfDirectory(handle, succeeded=False)
+
+
 def main_entry_point():
     log.debug("===== JellyCon START =====")
 
@@ -200,7 +220,9 @@ def toggle_watched(params):
 def mark_item_watched(item_id):
     log.debug("Mark Item Watched: {0}".format(item_id))
     url = "/Users/{}/PlayedItems/{}".format(api.user_id, item_id)
-    api.post(url)
+    if not api.request('POST', url)[0]:
+        api.notify_failed(30270)
+        return
     check_for_new_content()
     home_window = HomeWindow()
     last_url = home_window.get_property("last_content_url")
@@ -214,7 +236,9 @@ def mark_item_watched(item_id):
 def mark_item_unwatched(item_id):
     log.debug("Mark Item UnWatched: {0}".format(item_id))
     url = "/Users/{}/PlayedItems/{}".format(api.user_id, item_id)
-    api.delete(url)
+    if not api.delete(url):
+        api.notify_failed(30271)
+        return
     check_for_new_content()
     home_window = HomeWindow()
     last_url = home_window.get_property("last_content_url")
@@ -228,7 +252,9 @@ def mark_item_unwatched(item_id):
 def mark_item_favorite(item_id):
     log.debug("Add item to favourites: {0}".format(item_id))
     url = "/Users/{}/FavoriteItems/{}".format(api.user_id, item_id)
-    api.post(url)
+    if not api.request('POST', url)[0]:
+        api.notify_failed(30272)
+        return
     check_for_new_content()
     home_window = HomeWindow()
     last_url = home_window.get_property("last_content_url")
@@ -241,7 +267,9 @@ def mark_item_favorite(item_id):
 def unmark_item_favorite(item_id):
     log.debug("Remove item from favourites: {0}".format(item_id))
     url = "/Users/{}/FavoriteItems/{}".format(api.user_id, item_id)
-    api.delete(url)
+    if not api.delete(url):
+        api.notify_failed(30273)
+        return
     check_for_new_content()
     home_window = HomeWindow()
     last_url = home_window.get_property("last_content_url")
@@ -253,6 +281,9 @@ def unmark_item_favorite(item_id):
 
 def delete(item_id):
     item = api.get("/Users/{}/Items/{}".format(api.user_id, item_id))
+    if not item:
+        api.notify_failed(30274)
+        return
 
     item_id = item.get("Id")
     item_name = item.get("Name", "")
@@ -286,8 +317,11 @@ def delete(item_id):
         url = '/Items/{}'.format(item_id)
         progress = xbmcgui.DialogProgress()
         progress.create(translate_string(30052), translate_string(30053))
-        api.delete(url)
+        deleted = api.delete(url)
         progress.close()
+        if not deleted:
+            api.notify_failed(30274)
+            return
         check_for_new_content()
         home_window = HomeWindow()
         last_url = home_window.get_property("last_content_url")
@@ -331,7 +365,9 @@ def show_menu(params):
     result = api.get(url)
     log.debug("Menu item info: {0}".format(result))
 
-    if result is None:
+    # Empty when the request failed (offline, item gone, login expired)
+    if not result or "Type" not in result:
+        api.notify_failed(30692)
         return
 
     action_items = []

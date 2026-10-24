@@ -40,6 +40,10 @@ jobs:
           flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics --output-file=flake8.output
           cat flake8.output
 
+      - name: Run unit tests
+        run: |
+          python -m pytest tests
+
       - name: Publish Test Atrifact
         uses: actions/upload-artifact@v4
         with:

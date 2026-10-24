@@ -9,6 +9,7 @@ import xbmcaddon
 import xbmcgui
 
 from resources.lib.lazylogger import LazyLogger
+from resources.lib.jellyfin import api
 from resources.lib.play_utils import Service, PlaybackService, send_progress
 from resources.lib.kodi_utils import HomeWindow
 from resources.lib.widgets import set_background_image, set_random_movies, set_random_tvshows, set_random_all
@@ -132,6 +133,11 @@ while home_window.get_property('exit') == 'False':
             screen_saver_active = xbmc.getCondVisibility("System.ScreenSaverActive")
 
             if not screen_saver_active:
+                # The server rejected our token, ask the user what to do
+                if (home_window.get_property('auth_rejected') == 'true'
+                        and home_window.get_property('auth_rejected_snoozed') != 'true'):
+                    api.resolve_unauthorized()
+
                 user_changed = False
                 if prev_user != home_window.get_property("user_name"):
                     log.debug("user_change_detected")
