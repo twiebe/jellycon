@@ -5,10 +5,16 @@ from __future__ import (
 import json
 
 import requests
+import xbmc
 import xbmcaddon
+import xbmcgui
 from kodi_six.utils import py2_decode
 
-from .utils import get_device_id, get_version, load_user_details
+from .utils import (
+    get_device_id, get_version, load_user_details, clear_user_details,
+    translate_string
+)
+from .kodi_utils import HomeWindow
 from .lazylogger import LazyLogger
 
 log = LazyLogger(__name__)
@@ -23,10 +29,28 @@ class API:
         self.settings = xbmcaddon.Addon()
 
         self.headers = {}
+        self.last_error = None
+        self.error_notified = False
+        self.token_rejected = False
         self.create_headers()
         self.verify_cert = settings.getSetting('verify_cert') == 'true'
 
-    def get(self, path):
+    def request(self, method, path, payload=None, timeout=5):
+        '''
+        Send a request to the server. Returns a tuple (ok, data): ok is True
+        for a 2xx response, data is the decoded JSON body or {}.
+
+        On failure, self.last_error holds a short reason for the user and
+        self.error_notified tells whether a notification about it was just
+        shown (server became unreachable), so callers do not show a second
+        one. self.token_rejected is set when the server refused our token.
+        Background requests can ignore failures: the user hears about an
+        unreachable server or a rejected login once, not on every request.
+        '''
+        self.last_error = None
+        self.error_notified = False
+        self.token_rejected = False
+
         if 'Authorization' not in self.headers or self.token not in self.headers:
             self.create_headers(True)
 
@@ -38,50 +62,180 @@ class API:
         url = '{}{}'.format(self.server, path)
 
         try:
-            r = requests.get(url, headers=self.headers, verify=self.verify_cert, timeout=(5,60))
+            r = requests.request(method, url, json=payload, headers=self.headers,
+                                 verify=self.verify_cert, timeout=timeout)
+        except requests.exceptions.ReadTimeout as error:
+            log.error('{0} {1} failed: {2}'.format(method, path, error))
+            self.last_error = translate_string(30686)
+            return False, {}
+        except Exception as error:
+            log.error('{0} {1} failed: {2}'.format(method, path, error))
+            self.last_error = translate_string(30685)
+            self.set_server_reachable(False)
+            return False, {}
+
+        self.set_server_reachable(True)
+
+        if not r.ok:
+            log.error('{0} {1} failed: HTTP {2} {3}'.format(
+                method, path, r.status_code, r.text[:200]))
+            self.last_error = self.describe_status(r.status_code)
+            if r.status_code == 401 and self.is_token_rejection(path):
+                self.token_rejected = True
+                HomeWindow().set_property('auth_rejected', 'true')
+            return False, {}
+
+        # The token works (again), e.g. after a retry or a new login
+        home_window = HomeWindow()
+        if home_window.get_property('auth_rejected') and 'Token=' in self.headers.get('Authorization', ''):
+            home_window.clear_property('auth_rejected')
+            home_window.clear_property('auth_rejected_snoozed')
+
+        if not r.content:
+            return True, {}
+        try:
+            '''
+            The requests library defaults to using simplejson to handle
+            json decoding.  On low power devices and using Py3, this is
+            significantly slower than the builtin json library.  Skip that
+            and just parse the json ourselves.  Fall back to using
+            requests/simplejson if there's a parsing error.
+            '''
+            return True, json.loads(r.text)
+        except ValueError:
             try:
-                '''
-                The requests library defaults to using simplejson to handle
-                json decoding.  On low power devices and using Py3, this is
-                significantly slower than the builtin json library.  Skip that
-                and just parse the json ourselves.  Fall back to using
-                requests/simplejson if there's a parsing error.
-                '''
-                r.raise_for_status()
-                response_data = json.loads(r.text)
+                return True, r.json()
             except ValueError:
-                response_data = r.json()
-        except Exception:
-            response_data = {}
-        return response_data
+                return True, {}
+
+    @staticmethod
+    def describe_status(status_code):
+        if status_code == 401:
+            return translate_string(30683)
+        if status_code == 403:
+            return translate_string(30688)
+        if status_code == 404:
+            return translate_string(30687)
+        if status_code >= 500:
+            return translate_string(30689).format(status_code)
+        return translate_string(30690).format(status_code)
+
+    def set_server_reachable(self, reachable):
+        '''
+        Notify once when the server becomes unreachable and once when it is
+        back. The state lives in a window property, shared by the service
+        and all plugin invocations.
+        '''
+        home_window = HomeWindow()
+        was_unreachable = home_window.get_property('server_unreachable') == 'true'
+        if reachable and was_unreachable:
+            home_window.clear_property('server_unreachable')
+            self.notify(translate_string(30691), xbmcgui.NOTIFICATION_INFO)
+        elif not reachable and not was_unreachable:
+            home_window.set_property('server_unreachable', 'true')
+            self.notify(translate_string(30685))
+            self.error_notified = True
+
+    def notify_failed(self, action_string_id):
+        '''
+        Tell the user why the last request of an action failed, e.g.
+        "Mark Unwatched failed: Server not reachable". Skipped when a
+        notification about the same problem was just shown. A rejected
+        login asks the user what to do instead.
+        '''
+        if self.token_rejected:
+            self.resolve_unauthorized()
+            return
+        if self.error_notified:
+            return
+        self.notify(translate_string(30684).format(
+            translate_string(action_string_id), self.last_error))
+
+    def notify(self, message, icon=xbmcgui.NOTIFICATION_ERROR):
+        xbmcgui.Dialog().notification(
+            self.settings.getAddonInfo('name'), message, icon=icon, time=8000)
+
+    def get(self, path):
+        return self.request('GET', path, timeout=(5, 60))[1]
 
     def post(self, url, payload={}):
-        if 'Authorization' not in self.headers or self.token not in self.headers:
-            self.create_headers(True)
-
-        url = '{}{}'.format(self.server, url)
-
-        try:
-            r = requests.post(url, json=payload, headers=self.headers, verify=self.verify_cert, timeout=5)
-            try:
-                # Much faster on low power devices, see above comment
-                response_data = json.loads(r.text)
-            except ValueError:
-                response_data = r.json()
-        except Exception:
-            response_data = {}
-        return response_data
+        return self.request('POST', url, payload)[1]
 
     def delete(self, url):
-        if 'Authorization' not in self.headers or self.token not in self.headers:
-            self.create_headers(True)
+        return self.request('DELETE', url)[0]
 
-        url = '{}{}'.format(self.server, url)
+    def is_token_rejection(self, path):
+        '''
+        A 401 means the server refused our token, e.g. because it was revoked
+        when the user was disabled. Failed logins and Quick Connect (401 when
+        disabled on the server) say nothing about the token.
+        '''
+        if 'Token=' not in self.headers.get('Authorization', ''):
+            return False
+        return not path.startswith(('/Users/AuthenticateByName', '/Users/AuthenticateWithQuickConnect',
+                                    '/QuickConnect/'))
 
+    def resolve_unauthorized(self, relogin=True):
+        '''
+        Ask the user what to do about a rejected token: sign in again, retry
+        with the saved login, or leave it for now. With relogin=False the
+        caller runs the login itself.
+        Returns 'relogin' (saved login dropped), 'ok' (retry worked) or
+        'cancel'.
+        '''
+        home_window = HomeWindow()
+        # The service and a plugin call may both run into the same 401
+        if home_window.get_property('auth_dialog_open') == 'true':
+            return 'cancel'
+        home_window.set_property('auth_dialog_open', 'true')
         try:
-            requests.delete(url, headers=self.headers, verify=self.verify_cert, timeout=5)
-        except Exception:
-            pass
+            user_name = home_window.get_property('user_name') or self.settings.getSetting('username')
+            while True:
+                choice = self.ask_unauthorized(user_name)
+
+                if choice == 'retry':
+                    ok, _ = self.request('GET', '/Users/Me')
+                    if ok:
+                        self.notify(translate_string(30696), xbmcgui.NOTIFICATION_INFO)
+                        return 'ok'
+                    if self.token_rejected:
+                        continue
+                    self.notify_failed(30695)
+                    return 'cancel'
+
+                if choice == 'relogin':
+                    log.info('Dropping the saved login of user {0}'.format(user_name))
+                    clear_user_details(user_name)
+                    self.token = None
+                    self.create_headers(True)
+                    home_window.clear_property('auth_rejected')
+                    home_window.clear_property('auth_rejected_snoozed')
+                    if relogin:
+                        # Imported here, server_detect imports this module
+                        from .server_detect import check_server
+                        check_server(change_user=True)
+                    return 'relogin'
+
+                # Keep the token, background requests stop asking until
+                # the user runs into the problem again
+                home_window.set_property('auth_rejected_snoozed', 'true')
+                return 'cancel'
+        finally:
+            home_window.clear_property('auth_dialog_open')
+
+    def ask_unauthorized(self, user_name):
+        dialog = xbmcgui.Dialog()
+        heading = self.settings.getAddonInfo('name')
+        message = translate_string(30693).format(user_name)
+        if hasattr(dialog, 'yesnocustom'):
+            choice = dialog.yesnocustom(
+                heading, message, customlabel=xbmc.getLocalizedString(222),
+                nolabel=translate_string(30695), yeslabel=translate_string(30694))
+            return {1: 'relogin', 0: 'retry'}.get(choice, 'cancel')
+        # Kodi 18 has no third button
+        choice = dialog.yesno(heading, message, nolabel=translate_string(30695),
+                              yeslabel=translate_string(30694))
+        return 'relogin' if choice else 'retry'
 
     def authenticate(self, auth_data):
         # Always force create fresh headers during authentication

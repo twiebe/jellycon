@@ -265,8 +265,9 @@ def play_file(play_info):
     result = api.get(url)
     log.debug("Playfile item: {0}".format(result))
 
-    if result is None:
-        log.debug("Playfile item was None, so can not play!")
+    if not result:
+        log.debug("Playfile item could not be loaded, so can not play!")
+        api.notify_failed(30314)
         return
 
     # Generate an instant mix based on the item
@@ -349,8 +350,9 @@ def play_file(play_info):
 
     # get playback info from the server using the device profile
     playback_info = get_item_playback_info(item_id, force_transcode)
-    if playback_info is None:
-        log.debug("playback_info was None, could not get MediaSources so can not play!")
+    if not playback_info:
+        log.debug("playback_info is empty, could not get MediaSources so can not play!")
+        api.notify_failed(30314)
         return
     if playback_info.get("ErrorCode") is not None:
         error_string = playback_info.get("ErrorCode")

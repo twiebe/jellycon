@@ -204,9 +204,15 @@ def check_server(force=False, change_user=False, notify=False):
 
     # do we need to change the user
     current_username = settings.getSetting('username')
-    user_details = load_user_details()
     home_window = HomeWindow()
     home_window.set_property('user_name', current_username)
+    user_details = load_user_details()
+
+    # A saved token may have been revoked on the server since the last start
+    if user_details.get('token') and not something_changed:
+        api.get('/Users/Me')
+        if api.token_rejected and api.resolve_unauthorized(relogin=False) == 'relogin':
+            user_details = {}
 
     # if asked or we have no current user then show user selection screen
     if something_changed or change_user or len(current_username) == 0 or not user_details:

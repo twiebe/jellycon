@@ -1240,3 +1240,63 @@ msgstr "Quick Connect authentication failed. Please try again."
 msgctxt "#30682"
 msgid "Quick Connect timed out. Please try again."
 msgstr "Quick Connect timed out. Please try again."
+
+msgctxt "#30683"
+msgid "Login rejected by server (HTTP 401)"
+msgstr "Login rejected by server (HTTP 401)"
+
+msgctxt "#30684"
+msgid "{0} failed: {1}"
+msgstr "{0} failed: {1}"
+
+msgctxt "#30685"
+msgid "Server not reachable"
+msgstr "Server not reachable"
+
+msgctxt "#30686"
+msgid "Server did not respond in time"
+msgstr "Server did not respond in time"
+
+msgctxt "#30687"
+msgid "Item not found on server"
+msgstr "Item not found on server"
+
+msgctxt "#30688"
+msgid "Access not allowed (e.g. outside allowed hours)"
+msgstr "Access not allowed (e.g. outside allowed hours)"
+
+msgctxt "#30689"
+msgid "Server error (HTTP {0})"
+msgstr "Server error (HTTP {0})"
+
+msgctxt "#30690"
+msgid "Request rejected (HTTP {0})"
+msgstr "Request rejected (HTTP {0})"
+
+msgctxt "#30691"
+msgid "Server reachable again"
+msgstr "Server reachable again"
+
+msgctxt "#30692"
+msgid "Loading item"
+msgstr "Loading item"
+
+msgctxt "#30693"
+msgid "The server rejected the saved login of {0} (HTTP 401). It may have been revoked, e.g. because the user was disabled.[CR]Sign in again, or retry with the saved login?"
+msgstr "The server rejected the saved login of {0} (HTTP 401). It may have been revoked, e.g. because the user was disabled.[CR]Sign in again, or retry with the saved login?"
+
+msgctxt "#30694"
+msgid "Sign in again"
+msgstr "Sign in again"
+
+msgctxt "#30695"
+msgid "Retry"
+msgstr "Retry"
+
+msgctxt "#30696"
+msgid "Login accepted again"
+msgstr "Login accepted again"
+
+msgctxt "#30697"
+msgid "Loading"
+msgstr "Loading"

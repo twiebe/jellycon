@@ -235,6 +235,10 @@ class WebSocketClient(threading.Thread):
             if command in builtin:
                 xbmc.executebuiltin(builtin[command])
 
+    def _headers(self):
+        self.api.create_headers(True)
+        return self.api.headers
+
     def on_open(self, ws):
         # Wait to make sure previous keepalive cycle has ended
         if self.websocket_error:
@@ -265,10 +269,10 @@ class WebSocketClient(threading.Thread):
         websocket_url = "{}/socket".format(server)
         log.debug("websocket url: {0}".format(websocket_url))
 
-        headers = self.api.headers
         self._client = websocket.WebSocketApp(
             websocket_url,
-            header=headers,
+            # Called on every (re)connect, so a new login's token is used
+            header=self._headers,
             on_open=lambda ws: self.on_open(ws),
             on_message=lambda ws, message: self.on_message(ws, message),
             on_error=lambda ws, error: self.on_error(ws, error))

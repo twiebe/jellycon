@@ -102,6 +102,7 @@ def folder_filter(folder_name: str) -> bool:
         '.mypy_cache',
         '.pytest_cache',
         '__pycache__',
+        'tests',
         'venv',
     ]
     for f in filters:

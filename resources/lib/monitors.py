@@ -4,6 +4,7 @@ from __future__ import (
 
 import threading
 import time
+import traceback
 
 import xbmc
 
@@ -38,7 +39,13 @@ class ContextMonitor(threading.Thread):
                         xbmc.executebuiltin("Dialog.Close(contextmenu,true)")
                         params = {}
                         params["item_id"] = item_id
-                        show_menu(params)
+                        # An error must not end this thread, Kodi's own
+                        # context menu would silently take over
+                        try:
+                            show_menu(params)
+                        except Exception:
+                            log.error("Context menu failed: {0}".format(
+                                traceback.format_exc()))
 
                 container_id = xbmc.getInfoLabel("System.CurrentControlID")
                 item_id = xbmc.getInfoLabel(

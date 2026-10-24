@@ -14,3 +14,4 @@ git+https://github.com/ruuk/script.module.addon.signals
 flake8 >= 3.8
 flake8-import-order >= 0.18
 websocket-client >= 0.57.0
+pytest

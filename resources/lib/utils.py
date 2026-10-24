@@ -226,6 +226,30 @@ def save_user_details(user_name, user_id, token):
     window.set_property('user_name', user_name)
 
 
+def clear_user_details(user_name):
+    '''
+    Forget the saved login of a user, e.g. after the server rejected its token.
+    The next login asks for the password again.
+    '''
+    addon_data = translate_path(xbmcaddon.Addon().getAddonInfo('profile'))
+    auth_path = os.path.join(addon_data, 'auth.json')
+    try:
+        with open(auth_path, 'rb') as infile:
+            auth_data = json.load(infile)
+    except:  # noqa
+        return
+
+    if auth_data.pop(user_name, None) is None:
+        return
+
+    with open(auth_path, 'wb') as outfile:
+        data = json.dumps(
+            auth_data, sort_keys=True, indent=4, ensure_ascii=False)
+        if isinstance(data, text_type):
+            data = data.encode('utf-8')
+        outfile.write(data)
+
+
 def load_user_details():
     settings = xbmcaddon.Addon()
     window = HomeWindow()
