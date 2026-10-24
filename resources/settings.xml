@@ -3,7 +3,7 @@
 	<section id="plugin.video.jellycon">
 		<category id="jellyfin" label="30014">
 			<group id="1" label="30388">
-				<setting id="action_detect_server" type="action" label="30011">
+				<setting id="action_detect_server" type="action" label="30011" help="30715">
 					<level>0</level>
 					<data>RunScript(plugin.video.jellycon,0,?mode=DETECT_SERVER_USER)</data>
 					<constraints>
@@ -51,7 +51,7 @@
 						<heading>30001</heading>
 					</control>
 				</setting>
-				<setting id="server_address" type="string" label="30000">
+				<setting id="server_address" type="string" label="30000" help="30716">
 					<level>0</level>
 					<default/>
 					<constraints>
@@ -61,14 +61,14 @@
 						<heading>30000</heading>
 					</control>
 				</setting>
-				<setting id="verify_cert" type="boolean" label="30003">
+				<setting id="verify_cert" type="boolean" label="30003" help="30717">
 					<level>0</level>
 					<default>true</default>
 					<control type="toggle"/>
 				</setting>
 			</group>
 			<group id="2" label="30389">
-				<setting id="action_change_user" type="action" label="30012">
+				<setting id="action_change_user" type="action" label="30012" help="30718">
 					<level>0</level>
 					<data>RunScript(plugin.video.jellycon,0,?mode=CHANGE_USER)</data>
 					<constraints>
@@ -78,7 +78,7 @@
 						<close>true</close>
 					</control>
 				</setting>
-				<setting id="username" type="string" label="30024">
+				<setting id="username" type="string" label="30024" help="30719">
 					<level>0</level>
 					<default/>
 					<constraints>
@@ -88,7 +88,7 @@
 						<heading>30024</heading>
 					</control>
 				</setting>
-				<setting id="save_user_to_settings" type="boolean" label="30378">
+				<setting id="save_user_to_settings" type="boolean" label="30378" help="30720">
 					<level>0</level>
 					<default>true</default>
 					<control type="toggle"/>
@@ -102,14 +102,14 @@
 		</category>
 		<category id="playback" label="30207">
 			<group id="1" label="30437">
-				<setting id="play_cinema_intros" type="boolean" label="30438">
+				<setting id="play_cinema_intros" type="boolean" label="30438" help="30721">
 					<level>0</level>
 					<default>false</default>
 					<control type="toggle"/>
 				</setting>
 			</group>
 			<group id="2" label="30238">
-				<setting id="max_stream_bitrate" type="integer" label="30208">
+				<setting id="max_stream_bitrate" type="integer" label="30208" help="30722">
 					<level>0</level>
 					<default>23</default>
 					<constraints>
@@ -143,37 +143,37 @@
 					</constraints>
 					<control type="spinner" format="string"/>
 				</setting>
-				<setting id="allow_direct_file_play" type="boolean" label="30433">
+				<setting id="allow_direct_file_play" type="boolean" label="30433" help="30723">
 					<level>0</level>
 					<default>false</default>
 					<control type="toggle"/>
 				</setting>
-				<setting id="force_transcode_h265" type="boolean" label="30236">
+				<setting id="force_transcode_h265" type="boolean" label="30236" help="30724">
 					<level>0</level>
 					<default>false</default>
 					<control type="toggle"/>
 				</setting>
-				<setting id="force_transcode_mpeg2" type="boolean" label="30239">
+				<setting id="force_transcode_mpeg2" type="boolean" label="30239" help="30725">
 					<level>0</level>
 					<default>false</default>
 					<control type="toggle"/>
 				</setting>
-				<setting id="force_transcode_msmpeg4v3" type="boolean" label="30240">
+				<setting id="force_transcode_msmpeg4v3" type="boolean" label="30240" help="30726">
 					<level>0</level>
 					<default>false</default>
 					<control type="toggle"/>
 				</setting>
-				<setting id="force_transcode_mpeg4" type="boolean" label="30241">
+				<setting id="force_transcode_mpeg4" type="boolean" label="30241" help="30727">
 					<level>0</level>
 					<default>false</default>
 					<control type="toggle"/>
 				</setting>
-				<setting id="force_transcode_av1" type="boolean" label="30242">
+				<setting id="force_transcode_av1" type="boolean" label="30242" help="30728">
 					<level>0</level>
 					<default>false</default>
 					<control type="toggle"/>
 				</setting>
-				<setting id="direct_stream_sub_select" type="integer" label="30379">
+				<setting id="direct_stream_sub_select" type="integer" label="30379" help="30729">
 					<level>0</level>
 					<default>0</default>
 					<constraints>
@@ -189,7 +189,7 @@
 				</setting>
 			</group>
 			<group id="3" label="30211">
-				<setting id="force_max_stream_bitrate" type="integer" label="30434">
+				<setting id="force_max_stream_bitrate" type="integer" label="30434" help="30730">
 					<level>0</level>
 					<default>9</default>
 					<constraints>
@@ -223,7 +223,7 @@
 					</constraints>
 					<control type="spinner" format="string"/>
 				</setting>
-				<setting id="playback_max_width" type="string" label="30212">
+				<setting id="playback_max_width" type="string" label="30212" help="30731">
 					<level>0</level>
 					<default>1920</default>
 					<constraints>
@@ -243,12 +243,12 @@
 						<heading>30212</heading>
 					</control>
 				</setting>
-				<setting id="playback_video_force_8" type="boolean" label="30213">
+				<setting id="playback_video_force_8" type="boolean" label="30213" help="30732">
 					<level>0</level>
 					<default>false</default>
 					<control type="toggle"/>
 				</setting>
-				<setting id="audio_codec" type="string" label="30419">
+				<setting id="audio_codec" type="string" label="30419" help="30733">
 					<level>0</level>
 					<default>ac3</default>
 					<constraints>
@@ -261,7 +261,7 @@
 						<heading>30419</heading>
 					</control>
 				</setting>
-				<setting id="audio_playback_bitrate" type="string" label="30418">
+				<setting id="audio_playback_bitrate" type="string" label="30418" help="30734">
 					<level>0</level>
 					<default>256</default>
 					<constraints>
@@ -280,7 +280,7 @@
 						<heading>30418</heading>
 					</control>
 				</setting>
-				<setting id="audio_max_channels" type="integer" label="30420">
+				<setting id="audio_max_channels" type="integer" label="30420" help="30735">
 					<level>0</level>
 					<default>8</default>
 					<constraints>
@@ -292,7 +292,7 @@
 						<popup>false</popup>
 					</control>
 				</setting>
-				<setting id="max_play_queue" type="integer" label="30447">
+				<setting id="max_play_queue" type="integer" label="30447" help="30736">
 					<level>0</level>
 					<default>200</default>
 					<constraints>
@@ -308,7 +308,7 @@
 		</category>
 		<category id="events" label="30214">
 			<group id="1" label="30440">
-				<setting id="play_next_trigger_time" type="integer" label="30439">
+				<setting id="play_next_trigger_time" type="integer" label="30439" help="30737">
 					<level>0</level>
 					<default>0</default>
 					<constraints>
@@ -322,7 +322,7 @@
 				</setting>
 			</group>
 			<group id="2" label="30215">
-				<setting id="promptPlayNextEpisodePercentage" type="integer" label="30218">
+				<setting id="promptPlayNextEpisodePercentage" type="integer" label="30218" help="30738">
 					<level>0</level>
 					<default>90</default>
 					<constraints>
@@ -334,7 +334,7 @@
 						<popup>false</popup>
 					</control>
 				</setting>
-				<setting id="promptPlayNextEpisodePercentage_prompt" type="boolean" label="30219">
+				<setting id="promptPlayNextEpisodePercentage_prompt" type="boolean" label="30219" help="30739">
 					<level>0</level>
 					<default>true</default>
 					<control type="toggle"/>
@@ -365,12 +365,12 @@
 				</setting>
 			</group>
 			<group id="3" label="30121">
-				<setting id="forceAutoResume" type="boolean" label="30322">
+				<setting id="forceAutoResume" type="boolean" label="30322" help="30740">
 					<level>0</level>
 					<default>true</default>
 					<control type="toggle"/>
 				</setting>
-				<setting id="jump_back_amount" type="integer" label="30114">
+				<setting id="jump_back_amount" type="integer" label="30114" help="30741">
 					<level>0</level>
 					<default>15</default>
 					<constraints>
@@ -384,22 +384,22 @@
 				</setting>
 			</group>
 			<group id="4" label="30329">
-				<setting id="stopPlaybackOnScreensaver" type="boolean" label="30332">
+				<setting id="stopPlaybackOnScreensaver" type="boolean" label="30332" help="30742">
 					<level>0</level>
 					<default>false</default>
 					<control type="toggle"/>
 				</setting>
-				<setting id="changeUserOnScreenSaver" type="boolean" label="30330">
+				<setting id="changeUserOnScreenSaver" type="boolean" label="30330" help="30743">
 					<level>0</level>
 					<default>false</default>
 					<control type="toggle"/>
 				</setting>
-				<setting id="cacheImagesOnScreenSaver" type="boolean" label="30333">
+				<setting id="cacheImagesOnScreenSaver" type="boolean" label="30333" help="30744">
 					<level>0</level>
 					<default>true</default>
 					<control type="toggle"/>
 				</setting>
-				<setting id="cacheImagesOnScreenSaver_interval" type="integer" label="30400">
+				<setting id="cacheImagesOnScreenSaver_interval" type="integer" label="30400" help="30745">
 					<level>0</level>
 					<default>0</default>
 					<constraints>
@@ -415,52 +415,52 @@
 		</category>
 		<category id="interface" label="30110">
 			<group id="1" label="30216">
-				<setting id="addCounts" type="boolean" label="30116">
+				<setting id="addCounts" type="boolean" label="30116" help="30746">
 					<level>0</level>
 					<default>false</default>
 					<control type="toggle"/>
 				</setting>
-				<setting id="addResumePercent" type="boolean" label="30118">
+				<setting id="addResumePercent" type="boolean" label="30118" help="30747">
 					<level>0</level>
 					<default>false</default>
 					<control type="toggle"/>
 				</setting>
-				<setting id="addSubtitleAvailable" type="boolean" label="30163">
+				<setting id="addSubtitleAvailable" type="boolean" label="30163" help="30748">
 					<level>0</level>
 					<default>false</default>
 					<control type="toggle"/>
 				</setting>
-				<setting id="hide_x_filtered_items_count" type="boolean" label="30453">
+				<setting id="hide_x_filtered_items_count" type="boolean" label="30453" help="30749">
 					<level>0</level>
 					<default>false</default>
 					<control type="toggle"/>
 				</setting>
-				<setting id="include_overview" type="boolean" label="30181">
+				<setting id="include_overview" type="boolean" label="30181" help="30750">
 					<level>0</level>
 					<default>true</default>
 					<control type="toggle"/>
 				</setting>
-				<setting id="include_media" type="boolean" label="30182">
+				<setting id="include_media" type="boolean" label="30182" help="30751">
 					<level>0</level>
 					<default>true</default>
 					<control type="toggle"/>
 				</setting>
-				<setting id="add_user_ratings" type="boolean" label="30348">
+				<setting id="add_user_ratings" type="boolean" label="30348" help="30752">
 					<level>0</level>
 					<default>true</default>
 					<control type="toggle"/>
 				</setting>
-				<setting id="include_people" type="boolean" label="30183">
+				<setting id="include_people" type="boolean" label="30183" help="30753">
 					<level>0</level>
 					<default>false</default>
 					<control type="toggle"/>
 				</setting>
-				<setting id="hide_unwatched_details" type="boolean" label="30023">
+				<setting id="hide_unwatched_details" type="boolean" label="30023" help="30754">
 					<level>0</level>
 					<default>false</default>
 					<control type="toggle"/>
 				</setting>
-				<setting id="episode_name_format" type="string" label="30019">
+				<setting id="episode_name_format" type="string" label="30019" help="30755">
 					<level>0</level>
 					<default>{SeriesName} - {ItemName}</default>
 					<constraints>
@@ -477,34 +477,34 @@
 				</setting>
 			</group>
 			<group id="2" label="30222">
-				<setting id="group_movies" type="boolean" label="30340">
+				<setting id="group_movies" type="boolean" label="30340" help="30756">
 					<level>0</level>
 					<default>true</default>
 					<control type="toggle"/>
 				</setting>
-				<setting id="flatten_single_season" type="boolean" label="30020">
+				<setting id="flatten_single_season" type="boolean" label="30020" help="30757">
 					<level>0</level>
 					<default>true</default>
 					<control type="toggle"/>
 				</setting>
-				<setting id="show_all_episodes" type="boolean" label="30021">
+				<setting id="show_all_episodes" type="boolean" label="30021" help="30758">
 					<level>0</level>
 					<default>true</default>
 					<control type="toggle"/>
 				</setting>
-				<setting id="show_empty_folders" type="boolean" label="30328">
+				<setting id="show_empty_folders" type="boolean" label="30328" help="30759">
 					<level>0</level>
 					<default>false</default>
 					<control type="toggle"/>
 				</setting>
-				<setting id="hide_watched" type="boolean" label="30432">
+				<setting id="hide_watched" type="boolean" label="30432" help="30760">
 					<level>0</level>
 					<default>true</default>
 					<control type="toggle"/>
 				</setting>
 			</group>
 			<group id="3" label="30450">
-				<setting id="rewatch_days" type="integer" label="30451">
+				<setting id="rewatch_days" type="integer" label="30451" help="30761">
 					<level>0</level>
 					<default>0</default>
 					<constraints>
@@ -516,14 +516,14 @@
 						<popup>false</popup>
 					</control>
 				</setting>
-				<setting id="rewatch_combine" type="boolean" label="30452">
+				<setting id="rewatch_combine" type="boolean" label="30452" help="30762">
 					<level>0</level>
 					<default>false</default>
 					<control type="toggle"/>
 				</setting>
 			</group>
 			<group id="4" label="30223">
-				<setting id="moviePageSize" type="integer" label="30331">
+				<setting id="moviePageSize" type="integer" label="30331" help="30763">
 					<level>0</level>
 					<default>0</default>
 					<constraints>
@@ -535,7 +535,7 @@
 						<popup>false</popup>
 					</control>
 				</setting>
-				<setting id="showPageSize" type="integer" label="30678">
+				<setting id="showPageSize" type="integer" label="30678" help="30764">
 					<level>0</level>
 					<default>0</default>
 					<constraints>
@@ -547,7 +547,7 @@
 						<popup>false</popup>
 					</control>
 				</setting>
-				<setting id="show_x_filtered_items" type="integer" label="30018">
+				<setting id="show_x_filtered_items" type="integer" label="30018" help="30765">
 					<level>0</level>
 					<default>20</default>
 					<constraints>
@@ -574,7 +574,7 @@
 						<heading>30026</heading>
 					</control>
 				</setting>
-				<setting id="interface_mode" type="integer" label="30225">
+				<setting id="interface_mode" type="integer" label="30225" help="30766">
 					<level>0</level>
 					<default>0</default>
 					<constraints>
@@ -591,7 +591,7 @@
 		</category>
 		<category id="segment_skipper" label="30666">
 			<group id="1" label="30670">
-				<setting id="intro_skipper_action" type="integer" label="30667">
+				<setting id="intro_skipper_action" type="integer" label="30667" help="30767">
 					<level>0</level>
 					<default>0</default>
 					<constraints>
@@ -631,7 +631,7 @@
 				</setting>
 			</group>
 			<group id="2" label="30671">
-				<setting id="credit_skipper_action" type="integer" label="30667">
+				<setting id="credit_skipper_action" type="integer" label="30667" help="30767">
 					<level>0</level>
 					<default>0</default>
 					<constraints>
@@ -671,7 +671,7 @@
 				</setting>
 			</group>
 			<group id="3" label="30675">
-				<setting id="commercial_skipper_action" type="integer" label="30667">
+				<setting id="commercial_skipper_action" type="integer" label="30667" help="30767">
 					<level>0</level>
 					<default>0</default>
 					<constraints>
@@ -711,7 +711,7 @@
 				</setting>
 			</group>
 			<group id="4" label="30676">
-				<setting id="preview_skipper_action" type="integer" label="30667">
+				<setting id="preview_skipper_action" type="integer" label="30667" help="30767">
 					<level>0</level>
 					<default>0</default>
 					<constraints>
@@ -751,7 +751,7 @@
 				</setting>
 			</group>
 			<group id="5" label="30677">
-				<setting id="recap_skipper_action" type="integer" label="30667">
+				<setting id="recap_skipper_action" type="integer" label="30667" help="30767">
 					<level>0</level>
 					<default>0</default>
 					<constraints>
@@ -793,17 +793,17 @@
 		</category>
 		<category id="services" label="30111">
 			<group id="1" label="30343">
-				<setting id="websocket_enabled" type="boolean" label="30310">
+				<setting id="websocket_enabled" type="boolean" label="30310" help="30768">
 					<level>0</level>
 					<default>true</default>
 					<control type="toggle"/>
 				</setting>
-				<setting id="override_contextmenu" type="boolean" label="30334">
+				<setting id="override_contextmenu" type="boolean" label="30334" help="30769">
 					<level>0</level>
 					<default>true</default>
 					<control type="toggle"/>
 				</setting>
-				<setting id="background_interval" type="integer" label="30341">
+				<setting id="background_interval" type="integer" label="30341" help="30770">
 					<level>0</level>
 					<default>20</default>
 					<constraints>
@@ -815,7 +815,7 @@
 						<popup>false</popup>
 					</control>
 				</setting>
-				<setting id="new_content_check_interval" type="integer" label="30342">
+				<setting id="new_content_check_interval" type="integer" label="30342" help="30771">
 					<level>0</level>
 					<default>0</default>
 					<constraints>
@@ -827,12 +827,12 @@
 						<popup>false</popup>
 					</control>
 				</setting>
-				<setting id="simple_new_content_check" type="boolean" label="30442">
+				<setting id="simple_new_content_check" type="boolean" label="30442" help="30772">
 					<level>0</level>
 					<default>true</default>
 					<control type="toggle"/>
 				</setting>
-				<setting id="random_movie_refresh_interval" type="integer" label="30384">
+				<setting id="random_movie_refresh_interval" type="integer" label="30384" help="30773">
 					<level>0</level>
 					<default>5</default>
 					<constraints>
@@ -848,7 +848,7 @@
 		</category>
 		<category id="advanced" label="30022">
 			<group id="1">
-				<setting id="deviceName" type="string" label="30016">
+				<setting id="deviceName" type="string" label="30016" help="30774">
 					<level>0</level>
 					<default>JellyCon</default>
 					<constraints>
@@ -870,7 +870,7 @@
 						<popup>false</popup>
 					</control>
 				</setting>
-				<setting id="profile_count" type="integer" label="30010">
+				<setting id="profile_count" type="integer" label="30010" help="30775">
 					<level>0</level>
 					<default>0</default>
 					<constraints>
@@ -882,27 +882,27 @@
 						<popup>false</popup>
 					</control>
 				</setting>
-				<setting id="log_debug" type="boolean" label="30027">
+				<setting id="log_debug" type="boolean" label="30027" help="30776">
 					<level>0</level>
 					<default>false</default>
 					<control type="toggle"/>
 				</setting>
-				<setting id="log_timing" type="boolean" label="30015">
+				<setting id="log_timing" type="boolean" label="30015" help="30777">
 					<level>0</level>
 					<default>false</default>
 					<control type="toggle"/>
 				</setting>
-				<setting id="use_cache" type="boolean" label="30345">
+				<setting id="use_cache" type="boolean" label="30345" help="30778">
 					<level>0</level>
 					<default>true</default>
 					<control type="toggle"/>
 				</setting>
-				<setting id="use_cached_widget_data" type="boolean" label="30441">
+				<setting id="use_cached_widget_data" type="boolean" label="30441" help="30779">
 					<level>0</level>
 					<default>false</default>
 					<control type="toggle"/>
 				</setting>
-				<setting id="showLoadProgress" type="boolean" label="30120">
+				<setting id="showLoadProgress" type="boolean" label="30120" help="30780">
 					<level>0</level>
 					<default>false</default>
 					<control type="toggle"/>
@@ -912,7 +912,7 @@
 					<default>false</default>
 					<control type="toggle"/>
 				</setting>
-				<setting id="speed_test_data_size" type="integer" label="30436">
+				<setting id="speed_test_data_size" type="integer" label="30436" help="30781">
 					<level>0</level>
 					<default>10</default>
 					<constraints>
@@ -939,7 +939,7 @@
 		</category>
 		<category id="views" label="30421">
 			<group id="1">
-				<setting id="view-movies" type="string" label="30683">
+				<setting id="view-movies" type="string" label="30683" help="30782">
 					<level>0</level>
 					<default/>
 					<constraints>
@@ -950,7 +950,7 @@
 						<heading>30683</heading>
 					</control>
 				</setting>
-				<setting id="view-tvshows" type="string" label="30684">
+				<setting id="view-tvshows" type="string" label="30684" help="30782">
 					<level>0</level>
 					<default/>
 					<constraints>
@@ -961,7 +961,7 @@
 						<heading>30684</heading>
 					</control>
 				</setting>
-				<setting id="view-seasons" type="string" label="30685">
+				<setting id="view-seasons" type="string" label="30685" help="30782">
 					<level>0</level>
 					<default/>
 					<constraints>
@@ -972,7 +972,7 @@
 						<heading>30685</heading>
 					</control>
 				</setting>
-				<setting id="view-episodes" type="string" label="30686">
+				<setting id="view-episodes" type="string" label="30686" help="30782">
 					<level>0</level>
 					<default/>
 					<constraints>
@@ -983,7 +983,7 @@
 						<heading>30686</heading>
 					</control>
 				</setting>
-				<setting id="view-sets" type="string" label="30687">
+				<setting id="view-sets" type="string" label="30687" help="30782">
 					<level>0</level>
 					<default/>
 					<constraints>
@@ -998,7 +998,7 @@
 		</category>
 		<category id="sorting" label="30422">
 			<group id="1">
-				<setting id="sort-Movies" type="integer" label="30231">
+				<setting id="sort-Movies" type="integer" label="30231" help="30783">
 					<level>0</level>
 					<default>0</default>
 					<constraints>
@@ -1017,7 +1017,7 @@
 						<heading>30231</heading>
 					</control>
 				</setting>
-				<setting id="sort-BoxSets" type="integer" label="30260">
+				<setting id="sort-BoxSets" type="integer" label="30260" help="30783">
 					<level>0</level>
 					<default>0</default>
 					<constraints>
@@ -1036,7 +1036,7 @@
 						<heading>30260</heading>
 					</control>
 				</setting>
-				<setting id="sort-Series" type="integer" label="30229">
+				<setting id="sort-Series" type="integer" label="30229" help="30783">
 					<level>0</level>
 					<default>0</default>
 					<constraints>
@@ -1055,7 +1055,7 @@
 						<heading>30229</heading>
 					</control>
 				</setting>
-				<setting id="sort-Seasons" type="integer" label="30431">
+				<setting id="sort-Seasons" type="integer" label="30431" help="30783">
 					<level>0</level>
 					<default>0</default>
 					<constraints>
@@ -1074,7 +1074,7 @@
 						<heading>30431</heading>
 					</control>
 				</setting>
-				<setting id="sort-Episodes" type="integer" label="30235">
+				<setting id="sort-Episodes" type="integer" label="30235" help="30783">
 					<level>0</level>
 					<default>0</default>
 					<constraints>
