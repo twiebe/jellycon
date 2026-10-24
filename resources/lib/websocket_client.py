@@ -295,7 +295,9 @@ class WebSocketClient(threading.Thread):
 
         self._stop_websocket = True
         if self._client is not None:
-            self._client.close()
+            # Don't wait long for the server to confirm: Kodi kills a
+            # service that needs more than 5 seconds to stop
+            self._client.close(timeout=1)
         if self._keepalive_timer is not None:
             self._keepalive_timer.cancel()
         log.debug("Stopping WebSocket (stop_client called)")
