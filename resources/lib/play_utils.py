@@ -19,7 +19,7 @@ from six.moves.urllib.parse import urlencode
 from .jellyfin import api
 from .lazylogger import LazyLogger
 from .dialogs import ResumeDialog
-from .utils import send_event_notification, convert_size, get_device_id, translate_string, load_user_details, translate_path, get_jellyfin_url, download_external_sub, get_bitrate
+from .utils import send_event_notification, convert_size, get_device_id, translate_string, load_user_details, get_current_user_id, translate_path, get_jellyfin_url, download_external_sub, get_bitrate
 from .kodi_utils import HomeWindow
 from .datamanager import clear_old_cache_data
 from .item_functions import extract_item_info, add_gui_item, get_art
@@ -121,7 +121,7 @@ def play_list_of_items(id_list):
     items = []
 
     for item_id in id_list:
-        url = "/Users/{}/Items/{}?format=json".format(api.user_id, item_id)
+        url = "/Users/{}/Items/{}?format=json".format(get_current_user_id(), item_id)
         result = api.get(url)
         if result is None:
             log.debug("Playfile item was None, so can not play!")
@@ -139,7 +139,7 @@ def add_to_playlist(play_info):
 
     item_id = play_info.get("item_id")
 
-    url = "/Users/{}/Items/{}?format=json".format(api.user_id, item_id)
+    url = "/Users/{}/Items/{}?format=json".format(get_current_user_id(), item_id)
     item = api.get(url)
     if item is None:
         log.debug("Playfile item was None, so can not play!")
@@ -203,7 +203,7 @@ def add_to_playlist(play_info):
 
 def get_playback_intros(item_id):
     log.debug("get_playback_intros")
-    url = "/Users/{}/Items/{}/Intros".format(api.user_id, item_id)
+    url = "/Users/{}/Items/{}/Intros".format(get_current_user_id(), item_id)
     intro_items = api.get(url)
 
     if intro_items is None:
@@ -261,7 +261,7 @@ def play_file(play_info):
 
     server = settings.getSetting('server_address')
 
-    url = "/Users/{}/Items/{}?format=json".format(api.user_id, item_id)
+    url = "/Users/{}/Items/{}?format=json".format(get_current_user_id(), item_id)
     result = api.get(url)
     log.debug("Playfile item: {0}".format(result))
 
@@ -275,7 +275,7 @@ def play_file(play_info):
         max_queue = int(settings.getSetting('max_play_queue'))
         url_root = '/Items/{}/InstantMix'.format(item_id)
         url_params = {
-            'UserId': api.user_id,
+            'UserId': get_current_user_id(),
             'Fields': 'MediaSources',
             'IncludeItemTypes': 'Audio',
             'SortBy': 'SortName',
@@ -300,7 +300,7 @@ def play_file(play_info):
                               "Playlist", "CollectionFolder", "MusicGenre"]:
         max_queue = int(settings.getSetting('max_play_queue'))
         log.debug("PlayAllFiles for parent item id: {0}".format(item_id))
-        url_root = '/Users/{}/Items'.format(api.user_id)
+        url_root = '/Users/{}/Items'.format(get_current_user_id())
         # Look specifically for episodes or audio files
         url_params = {
             'Fields': 'MediaSources',
@@ -330,12 +330,12 @@ def play_file(play_info):
     # if this is a program from live tv epg then play the actual channel
     if result.get("Type") == "Program":
         channel_id = result.get("ChannelId")
-        url = "/Users/{}/Items/{}?format=json".format(api.user_id, channel_id)
+        url = "/Users/{}/Items/{}?format=json".format(get_current_user_id(), channel_id)
         result = api.get(url)
         item_id = result["Id"]
     elif result.get('Type') == "TvChannel":
         channel_id = result.get("Id")
-        url = "/Users/{}/Items/{}?format=json".format(api.user_id, channel_id)
+        url = "/Users/{}/Items/{}?format=json".format(get_current_user_id(), channel_id)
         result = api.get(url)
         item_id = result["Id"]
     elif result.get("Type") == "Photo":
@@ -619,7 +619,7 @@ def get_next_episode(item):
         log.debug("No episode number, can not get next")
         return None
 
-    url = ('/Users/{}/Items?'.format(api.user_id) +
+    url = ('/Users/{}/Items?'.format(get_current_user_id()) +
            '?Recursive=true' +
            '&ParentId=' + parent_id +
            '&IsVirtualUnaired=false' +
@@ -1716,7 +1716,7 @@ def get_item_playback_info(item_id, force_transcode):
         )
 
     playback_info = {
-        'UserId': api.user_id,
+        'UserId': get_current_user_id(),
         'DeviceProfile': profile,
         'AutoOpenLiveStream': True
     }
