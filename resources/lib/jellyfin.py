@@ -26,6 +26,18 @@ class API:
         self.create_headers()
         self.verify_cert = settings.getSetting('verify_cert') == 'true'
 
+    @property
+    def user_id(self):
+        # The service creates its API before the user logged in, so pick
+        # up the id of the user that logged in since then
+        if not self._user_id:
+            self._user_id = load_user_details().get('user_id')
+        return self._user_id
+
+    @user_id.setter
+    def user_id(self, value):
+        self._user_id = value
+
     def get(self, path):
         if 'Authorization' not in self.headers or self.token not in self.headers:
             self.create_headers(True)
@@ -133,6 +145,7 @@ class API:
             token = user_details.get('token')
             if token:
                 self.token = token
+                self._user_id = user_details.get('user_id') or self._user_id
                 headers['Authorization'] += ", Token={}".format(self.token)
 
         # Kodi doesn't support br or zstd compression, exclude them
