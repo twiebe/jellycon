@@ -261,3 +261,14 @@ def test_action_failure_not_repeated_after_unreachable_notification(env):
     api.notify_failed(30271)
     # Only "Server not reachable", no second toast for the same problem
     assert [n[1] for n in calls['notifications']] == ['30786']
+
+
+def test_user_id_is_loaded_once_the_user_logged_in(monkeypatch):
+    # The service creates its API before anyone logged in
+    user_details = {}
+    monkeypatch.setattr(jellyfin, 'load_user_details', lambda: user_details)
+    api = jellyfin.API('http://server')
+    assert api.user_id is None
+
+    user_details.update({'user_id': 'user-id', 'token': 'token'})
+    assert api.user_id == 'user-id'
