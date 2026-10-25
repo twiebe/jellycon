@@ -62,7 +62,7 @@ def env(monkeypatch):
     monkeypatch.setattr(jellyfin.xbmcgui.Dialog, 'notification',
                         lambda self, *args, **kwargs: calls['notifications'].append(args))
 
-    api = jellyfin.API('http://server', 'user-id', 'token')
+    api = jellyfin.API('http://server', 'token')
     # Keep the token in the headers, like a logged in session does
     monkeypatch.setattr(api, 'create_headers', lambda force=False: create_headers(api))
     return api, responses, calls
@@ -261,14 +261,3 @@ def test_action_failure_not_repeated_after_unreachable_notification(env):
     api.notify_failed(30271)
     # Only "Server not reachable", no second toast for the same problem
     assert [n[1] for n in calls['notifications']] == ['30685']
-
-
-def test_user_id_is_loaded_once_the_user_logged_in(monkeypatch):
-    # The service creates its API before anyone logged in
-    user_details = {}
-    monkeypatch.setattr(jellyfin, 'load_user_details', lambda: user_details)
-    api = jellyfin.API('http://server')
-    assert api.user_id is None
-
-    user_details.update({'user_id': 'user-id', 'token': 'token'})
-    assert api.user_id == 'user-id'

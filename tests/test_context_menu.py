@@ -4,7 +4,7 @@ from __future__ import (
 
 import pytest
 
-from resources.lib import functions
+from resources.lib import functions, utils
 
 
 def test_show_menu_survives_failed_item_request(monkeypatch):
@@ -15,6 +15,20 @@ def test_show_menu_survives_failed_item_request(monkeypatch):
     functions.show_menu({'item_id': 'gone'})
 
     assert notified == [30692]
+
+
+def test_show_menu_uses_user_who_logged_in_after_start(monkeypatch):
+    # The service imports functions.py before anyone logged in
+    user_details = {}
+    requested = []
+    monkeypatch.setattr(utils, 'load_user_details', lambda: user_details)
+    monkeypatch.setattr(functions.api, 'get', lambda path: requested.append(path) or {})
+    monkeypatch.setattr(functions.api, 'notify_failed', lambda string_id: None)
+
+    user_details['user_id'] = 'user-id'
+    functions.show_menu({'item_id': 'item'})
+
+    assert requested[0].startswith('/Users/user-id/Items/item')
 
 
 def test_mark_unwatched_reports_failure(monkeypatch):

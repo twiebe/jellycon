@@ -19,7 +19,8 @@ from six.moves.urllib.parse import quote, unquote, parse_qsl, urlencode
 from .jellyfin import api
 from .utils import (
     translate_string, get_version, load_user_details, get_art_url,
-    get_default_filters, translate_path, kodi_version, get_jellyfin_url
+    get_default_filters, translate_path, kodi_version, get_jellyfin_url,
+    get_current_user_id
 )
 from .kodi_utils import HomeWindow
 from .datamanager import clear_cached_server_data
@@ -203,7 +204,7 @@ def toggle_watched(params):
     item_id = params.get("item_id", None)
     if item_id is None:
         return
-    url = "/Users/{}/Items/{}?format=json".format(api.user_id, item_id)
+    url = "/Users/{}/Items/{}?format=json".format(get_current_user_id(), item_id)
     result = api.get(url)
     log.debug("toggle_watched item info: {0}".format(result))
 
@@ -219,7 +220,7 @@ def toggle_watched(params):
 
 def mark_item_watched(item_id):
     log.debug("Mark Item Watched: {0}".format(item_id))
-    url = "/Users/{}/PlayedItems/{}".format(api.user_id, item_id)
+    url = "/Users/{}/PlayedItems/{}".format(get_current_user_id(), item_id)
     if not api.request('POST', url)[0]:
         api.notify_failed(30270)
         return
@@ -235,7 +236,7 @@ def mark_item_watched(item_id):
 
 def mark_item_unwatched(item_id):
     log.debug("Mark Item UnWatched: {0}".format(item_id))
-    url = "/Users/{}/PlayedItems/{}".format(api.user_id, item_id)
+    url = "/Users/{}/PlayedItems/{}".format(get_current_user_id(), item_id)
     if not api.delete(url):
         api.notify_failed(30271)
         return
@@ -251,7 +252,7 @@ def mark_item_unwatched(item_id):
 
 def mark_item_favorite(item_id):
     log.debug("Add item to favourites: {0}".format(item_id))
-    url = "/Users/{}/FavoriteItems/{}".format(api.user_id, item_id)
+    url = "/Users/{}/FavoriteItems/{}".format(get_current_user_id(), item_id)
     if not api.request('POST', url)[0]:
         api.notify_failed(30272)
         return
@@ -266,7 +267,7 @@ def mark_item_favorite(item_id):
 
 def unmark_item_favorite(item_id):
     log.debug("Remove item from favourites: {0}".format(item_id))
-    url = "/Users/{}/FavoriteItems/{}".format(api.user_id, item_id)
+    url = "/Users/{}/FavoriteItems/{}".format(get_current_user_id(), item_id)
     if not api.delete(url):
         api.notify_failed(30273)
         return
@@ -280,7 +281,7 @@ def unmark_item_favorite(item_id):
 
 
 def delete(item_id):
-    item = api.get("/Users/{}/Items/{}".format(api.user_id, item_id))
+    item = api.get("/Users/{}/Items/{}".format(get_current_user_id(), item_id))
     if not item:
         api.notify_failed(30274)
         return
@@ -361,7 +362,7 @@ def show_menu(params):
     settings = xbmcaddon.Addon()
     item_id = params["item_id"]
 
-    url = "/Users/{}/Items/{}?format=json".format(api.user_id, item_id)
+    url = "/Users/{}/Items/{}?format=json".format(get_current_user_id(), item_id)
     result = api.get(url)
     log.debug("Menu item info: {0}".format(result))
 
@@ -611,7 +612,7 @@ def show_menu(params):
         delete(item_id)
 
     elif selected_action == "show_extras":
-        url = "/Users/{}/Items/{}/SpecialFeatures".format(api.user_id, item_id)
+        url = "/Users/{}/Items/{}/SpecialFeatures".format(get_current_user_id(), item_id)
         plugin_params = {
             "url": url,
             "mode": "GET_CONTENT",
@@ -633,7 +634,7 @@ def show_menu(params):
 
         url_path = "/Shows/{}/Episodes".format(series_id)
         url_params = {
-            "userId": api.user_id,
+            "userId": get_current_user_id(),
             "seasonId": parent_id,
             "IsVirtualUnAired": False,
             "IsMissing": False,
@@ -665,7 +666,7 @@ def show_menu(params):
 
         url_path = "/Shows/{}/Seasons".format(series_id)
         url_params = {
-            "userId": api.user_id,
+            "userId": get_current_user_id(),
             "Fields": get_default_filters(),
         }
 
@@ -708,7 +709,7 @@ def show_content(params):
     if item_type.lower().find("movie") == -1:
         group_movies = False
 
-    url_path = "/Users/{}/Items".format(api.user_id)
+    url_path = "/Users/{}/Items".format(get_current_user_id())
     url_params = {
         "ImageTypeLimit": 1,
         "IsMissing": False,
@@ -734,7 +735,7 @@ def search_results_person(params):
 
     person_id = params.get("person_id")
 
-    url_path = "/Users/{}/Items".format(api.user_id)
+    url_path = "/Users/{}/Items".format(get_current_user_id())
     url_params = {
         "PersonIds": person_id,
         "Recursive": True,
@@ -859,7 +860,7 @@ def search_results(params):
             "Recursive": True,
             "EnableTotalRecordCount": False,
             "ImageTypeLimit": 1,
-            "userId": api.user_id
+            "userId": get_current_user_id()
         }
 
         search_url = get_jellyfin_url(url_path, url_params)
@@ -900,7 +901,7 @@ def search_results(params):
         xbmcplugin.endOfDirectory(handle, cacheToDisc=False)
 
     else:
-        url_path = "/Users/{}/Items".format(api.user_id)
+        url_path = "/Users/{}/Items".format(get_current_user_id())
         url_params = {
             "searchTerm": query,
             "IncludePeople": False,
