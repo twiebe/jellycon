@@ -1,9 +1,11 @@
-version: '1.0.2'
+version: '1:1.0.2-1'
 changelog: |-
-  Bug Fixes
-  ---------
-  + Accurately report playback on back-to-back plays (#447) @mcarlton00
-  + intro-skipper: fix skip dialog showing after clicking (#440) @pwNBait
+  Fork of JellyCon 1.0.2 (twiebe)
+  -------------------------------
+  + Show server errors to the user and let them resolve rejected logins
+  + Don't keep Kodi from exiting: interruptible keepalive, faster service stop
+  + Settings converted to settings format version 1
+  + Short help text for every visible setting
 dependencies:
   py2:
     - addon: 'xbmc.python'
