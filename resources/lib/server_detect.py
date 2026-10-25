@@ -34,7 +34,6 @@ def check_connection_speed():
 
     api = API(
         settings.getSetting('server_address'),
-        user_details.get('user_id'),
         user_details.get('token')
     )
 

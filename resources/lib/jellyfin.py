@@ -21,9 +21,8 @@ log = LazyLogger(__name__)
 
 
 class API:
-    def __init__(self, server=None, user_id=None, token=None):
+    def __init__(self, server=None, token=None):
         self.server = server
-        self.user_id = user_id
         self.token = token
 
         self.settings = xbmcaddon.Addon()
@@ -34,18 +33,6 @@ class API:
         self.token_rejected = False
         self.create_headers()
         self.verify_cert = settings.getSetting('verify_cert') == 'true'
-
-    @property
-    def user_id(self):
-        # The service creates its API before the user logged in, so pick
-        # up the id of the user that logged in since then
-        if not self._user_id:
-            self._user_id = load_user_details().get('user_id')
-        return self._user_id
-
-    @user_id.setter
-    def user_id(self, value):
-        self._user_id = value
 
     def request(self, method, path, payload=None, timeout=5):
         '''
@@ -256,7 +243,6 @@ class API:
         token = response.get('AccessToken')
         if token:
             self.token = token
-            self.user_id = response.get('User').get('Id')
             # Create headers again to include auth token
             self.create_headers()
             return response
@@ -299,7 +285,6 @@ class API:
             token = user_details.get('token')
             if token:
                 self.token = token
-                self._user_id = user_details.get('user_id') or self._user_id
                 headers['Authorization'] += ", Token={}".format(self.token)
 
         # Kodi doesn't support br or zstd compression, exclude them
@@ -364,6 +349,5 @@ settings = xbmcaddon.Addon()
 user_details = load_user_details()
 api = API(
     settings.getSetting('server_address'),
-    user_details.get('user_id'),
     user_details.get('token')
 )
