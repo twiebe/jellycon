@@ -15,9 +15,8 @@ log = LazyLogger(__name__)
 
 
 class API:
-    def __init__(self, server=None, user_id=None, token=None):
+    def __init__(self, server=None, token=None):
         self.server = server
-        self.user_id = user_id
         self.token = token
 
         self.settings = xbmcaddon.Addon()
@@ -90,7 +89,6 @@ class API:
         token = response.get('AccessToken')
         if token:
             self.token = token
-            self.user_id = response.get('User').get('Id')
             # Create headers again to include auth token
             self.create_headers()
             return response
@@ -197,6 +195,5 @@ settings = xbmcaddon.Addon()
 user_details = load_user_details()
 api = API(
     settings.getSetting('server_address'),
-    user_details.get('user_id'),
     user_details.get('token')
 )
