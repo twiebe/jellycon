@@ -65,7 +65,7 @@ def handle_entry_point_error():
         raise
     log.error("Plugin call failed after a server error: {0}".format(
         traceback.format_exc()))
-    api.notify_failed(30697)
+    api.notify_failed(30798)
 
     # Tell Kodi the listing failed, so it does not wait for one
     handle = int(sys.argv[1]) if len(sys.argv) > 1 and sys.argv[1].isdigit() else -1
@@ -367,7 +367,7 @@ def show_menu(params):
 
     # Empty when the request failed (offline, item gone, login expired)
     if not result or "Type" not in result:
-        api.notify_failed(30692)
+        api.notify_failed(30793)
         return
 
     action_items = []
