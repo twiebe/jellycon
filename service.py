@@ -36,7 +36,7 @@ home_window.clear_property("AccessToken")
 home_window.clear_property("Params")
 
 log = LazyLogger('service')
-monitor = xbmc.Monitor()
+kodi_monitor = xbmc.Monitor()
 
 addon_version = settings.getAddonInfo('version')
 try:
@@ -54,7 +54,7 @@ except Exception as error:
 
 # wait for 10 seconds for the Kodi splash screen to close
 i = 0
-while not monitor.abortRequested():
+while not kodi_monitor.abortRequested():
     if i == 100 or not xbmc.getCondVisibility("Window.IsVisible(startup)"):
         break
     i += 1
@@ -120,7 +120,7 @@ prev_user = home_window.get_property("user_name")
 first_run = True
 home_window.set_property('exit', 'False')
 
-while home_window.get_property('exit') == 'False':
+while home_window.get_property('exit') == 'False' and not kodi_monitor.abortRequested():
     try:
         if xbmc.Player().isPlaying():
             last_random_movie_update = time.time() - (random_movie_list_interval - 15)
@@ -195,7 +195,7 @@ while home_window.get_property('exit') == 'False':
         log.error("{0}".format(traceback.format_exc()))
 
     first_run = False
-    xbmc.sleep(1000)
+    kodi_monitor.waitForAbort(1)
 
 image_server.stop()
 
