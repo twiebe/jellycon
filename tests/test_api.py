@@ -189,7 +189,7 @@ def test_retry_keeps_token_until_it_works(env, answers):
     assert api.resolve_unauthorized() == 'ok'
     assert api.token == 'token'
     assert calls['cleared'] == []
-    assert [n[1] for n in calls['notifications']] == ['30696']
+    assert [n[1] for n in calls['notifications']] == ['30797']
 
 
 def test_retry_while_server_unreachable_reports_reason(env, answers):
@@ -197,7 +197,7 @@ def test_retry_while_server_unreachable_reports_reason(env, answers):
     answers.append('retry')
     responses.append(requests.ConnectionError('offline'))
     assert api.resolve_unauthorized() == 'cancel'
-    assert [n[1] for n in calls['notifications']] == ['30685']
+    assert [n[1] for n in calls['notifications']] == ['30786']
 
 
 def test_cancel_keeps_token_and_snoozes_background_prompts(env, answers):
@@ -216,13 +216,13 @@ def test_only_one_dialog_at_a_time(env, answers):
 
 
 @pytest.mark.parametrize('response, reason', [
-    (requests.ConnectionError('offline'), '30685'),
-    (requests.exceptions.ConnectTimeout('no route'), '30685'),
-    (requests.exceptions.ReadTimeout('slow'), '30686'),
-    (FakeResponse(403), '30688'),
-    (FakeResponse(404), '30687'),
-    (FakeResponse(503), '30689'),
-    (FakeResponse(400), '30690'),
+    (requests.ConnectionError('offline'), '30786'),
+    (requests.exceptions.ConnectTimeout('no route'), '30786'),
+    (requests.exceptions.ReadTimeout('slow'), '30787'),
+    (FakeResponse(403), '30789'),
+    (FakeResponse(404), '30788'),
+    (FakeResponse(503), '30790'),
+    (FakeResponse(400), '30791'),
 ])
 def test_failure_reason(env, response, reason):
     api, responses, _ = env
@@ -238,11 +238,11 @@ def test_unreachable_server_is_announced_once_and_recovery_too(env):
 
     for _ in range(3):
         api.get('/Items/1')
-    assert [n[1] for n in calls['notifications']] == ['30685']
+    assert [n[1] for n in calls['notifications']] == ['30786']
 
     api.get('/Items/1')
     api.get('/Items/1')
-    assert [n[1] for n in calls['notifications']] == ['30685', '30691']
+    assert [n[1] for n in calls['notifications']] == ['30786', '30792']
     assert 'server_unreachable' not in FakeWindow.properties
 
 
@@ -251,7 +251,7 @@ def test_action_failure_names_action_and_reason(env):
     responses.append(FakeResponse(404))
     api.delete('/Users/u/PlayedItems/1')
     api.notify_failed(30271)
-    assert [n[1] for n in calls['notifications']] == ['30684']
+    assert [n[1] for n in calls['notifications']] == ['30785']
 
 
 def test_action_failure_not_repeated_after_unreachable_notification(env):
@@ -260,4 +260,4 @@ def test_action_failure_not_repeated_after_unreachable_notification(env):
     api.delete('/Users/u/PlayedItems/1')
     api.notify_failed(30271)
     # Only "Server not reachable", no second toast for the same problem
-    assert [n[1] for n in calls['notifications']] == ['30685']
+    assert [n[1] for n in calls['notifications']] == ['30786']

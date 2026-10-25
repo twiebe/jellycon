@@ -66,11 +66,11 @@ class API:
                                  verify=self.verify_cert, timeout=timeout)
         except requests.exceptions.ReadTimeout as error:
             log.error('{0} {1} failed: {2}'.format(method, path, error))
-            self.last_error = translate_string(30686)
+            self.last_error = translate_string(30787)
             return False, {}
         except Exception as error:
             log.error('{0} {1} failed: {2}'.format(method, path, error))
-            self.last_error = translate_string(30685)
+            self.last_error = translate_string(30786)
             self.set_server_reachable(False)
             return False, {}
 
@@ -111,14 +111,14 @@ class API:
     @staticmethod
     def describe_status(status_code):
         if status_code == 401:
-            return translate_string(30683)
+            return translate_string(30784)
         if status_code == 403:
-            return translate_string(30688)
+            return translate_string(30789)
         if status_code == 404:
-            return translate_string(30687)
+            return translate_string(30788)
         if status_code >= 500:
-            return translate_string(30689).format(status_code)
-        return translate_string(30690).format(status_code)
+            return translate_string(30790).format(status_code)
+        return translate_string(30791).format(status_code)
 
     def set_server_reachable(self, reachable):
         '''
@@ -130,10 +130,10 @@ class API:
         was_unreachable = home_window.get_property('server_unreachable') == 'true'
         if reachable and was_unreachable:
             home_window.clear_property('server_unreachable')
-            self.notify(translate_string(30691), xbmcgui.NOTIFICATION_INFO)
+            self.notify(translate_string(30792), xbmcgui.NOTIFICATION_INFO)
         elif not reachable and not was_unreachable:
             home_window.set_property('server_unreachable', 'true')
-            self.notify(translate_string(30685))
+            self.notify(translate_string(30786))
             self.error_notified = True
 
     def notify_failed(self, action_string_id):
@@ -148,7 +148,7 @@ class API:
             return
         if self.error_notified:
             return
-        self.notify(translate_string(30684).format(
+        self.notify(translate_string(30785).format(
             translate_string(action_string_id), self.last_error))
 
     def notify(self, message, icon=xbmcgui.NOTIFICATION_ERROR):
@@ -196,11 +196,11 @@ class API:
                 if choice == 'retry':
                     ok, _ = self.request('GET', '/Users/Me')
                     if ok:
-                        self.notify(translate_string(30696), xbmcgui.NOTIFICATION_INFO)
+                        self.notify(translate_string(30797), xbmcgui.NOTIFICATION_INFO)
                         return 'ok'
                     if self.token_rejected:
                         continue
-                    self.notify_failed(30695)
+                    self.notify_failed(30796)
                     return 'cancel'
 
                 if choice == 'relogin':
@@ -226,15 +226,15 @@ class API:
     def ask_unauthorized(self, user_name):
         dialog = xbmcgui.Dialog()
         heading = self.settings.getAddonInfo('name')
-        message = translate_string(30693).format(user_name)
+        message = translate_string(30794).format(user_name)
         if hasattr(dialog, 'yesnocustom'):
             choice = dialog.yesnocustom(
                 heading, message, customlabel=xbmc.getLocalizedString(222),
-                nolabel=translate_string(30695), yeslabel=translate_string(30694))
+                nolabel=translate_string(30796), yeslabel=translate_string(30795))
             return {1: 'relogin', 0: 'retry'}.get(choice, 'cancel')
         # Kodi 18 has no third button
-        choice = dialog.yesno(heading, message, nolabel=translate_string(30695),
-                              yeslabel=translate_string(30694))
+        choice = dialog.yesno(heading, message, nolabel=translate_string(30796),
+                              yeslabel=translate_string(30795))
         return 'relogin' if choice else 'retry'
 
     def authenticate(self, auth_data):

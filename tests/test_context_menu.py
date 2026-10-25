@@ -14,7 +14,7 @@ def test_show_menu_survives_failed_item_request(monkeypatch):
 
     functions.show_menu({'item_id': 'gone'})
 
-    assert notified == [30692]
+    assert notified == [30793]
 
 
 def test_mark_unwatched_reports_failure(monkeypatch):
@@ -44,7 +44,7 @@ def test_plugin_crash_after_server_error_is_reported(monkeypatch):
     except TypeError:
         functions.handle_entry_point_error()
 
-    assert notified == [30697]
+    assert notified == [30798]
     assert ended == [(7, False)]
 
 

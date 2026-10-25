@@ -1242,61 +1242,465 @@ msgid "Quick Connect timed out. Please try again."
 msgstr "Quick Connect timed out. Please try again."
 
 msgctxt "#30683"
+msgid "Movies view ID"
+msgstr "Movies view ID"
+
+msgctxt "#30684"
+msgid "TV Shows view ID"
+msgstr "TV Shows view ID"
+
+msgctxt "#30685"
+msgid "Seasons view ID"
+msgstr "Seasons view ID"
+
+msgctxt "#30686"
+msgid "Episodes view ID"
+msgstr "Episodes view ID"
+
+msgctxt "#30687"
+msgid "Collections view ID"
+msgstr "Collections view ID"
+
+msgctxt "#30688"
+msgid "0.5 Mbps"
+msgstr "0.5 Mbps"
+
+msgctxt "#30689"
+msgid "1 Mbps"
+msgstr "1 Mbps"
+
+msgctxt "#30690"
+msgid "1.5 Mbps"
+msgstr "1.5 Mbps"
+
+msgctxt "#30691"
+msgid "2.0 Mbps"
+msgstr "2.0 Mbps"
+
+msgctxt "#30692"
+msgid "2.5 Mbps"
+msgstr "2.5 Mbps"
+
+msgctxt "#30693"
+msgid "3.0 Mbps"
+msgstr "3.0 Mbps"
+
+msgctxt "#30694"
+msgid "4.0 Mbps"
+msgstr "4.0 Mbps"
+
+msgctxt "#30695"
+msgid "5.0 Mbps"
+msgstr "5.0 Mbps"
+
+msgctxt "#30696"
+msgid "6.0 Mbps"
+msgstr "6.0 Mbps"
+
+msgctxt "#30697"
+msgid "7.0 Mbps"
+msgstr "7.0 Mbps"
+
+msgctxt "#30698"
+msgid "8.0 Mbps"
+msgstr "8.0 Mbps"
+
+msgctxt "#30699"
+msgid "9.0 Mbps"
+msgstr "9.0 Mbps"
+
+msgctxt "#30700"
+msgid "10.0 Mbps"
+msgstr "10.0 Mbps"
+
+msgctxt "#30701"
+msgid "12.0 Mbps"
+msgstr "12.0 Mbps"
+
+msgctxt "#30702"
+msgid "14.0 Mbps"
+msgstr "14.0 Mbps"
+
+msgctxt "#30703"
+msgid "16.0 Mbps"
+msgstr "16.0 Mbps"
+
+msgctxt "#30704"
+msgid "18.0 Mbps"
+msgstr "18.0 Mbps"
+
+msgctxt "#30705"
+msgid "20.0 Mbps"
+msgstr "20.0 Mbps"
+
+msgctxt "#30706"
+msgid "25.0 Mbps"
+msgstr "25.0 Mbps"
+
+msgctxt "#30707"
+msgid "30.0 Mbps"
+msgstr "30.0 Mbps"
+
+msgctxt "#30708"
+msgid "35.0 Mbps"
+msgstr "35.0 Mbps"
+
+msgctxt "#30709"
+msgid "40.0 Mbps"
+msgstr "40.0 Mbps"
+
+msgctxt "#30710"
+msgid "100.0 Mbps"
+msgstr "100.0 Mbps"
+
+msgctxt "#30711"
+msgid "1000.0 Mbps [default]"
+msgstr "1000.0 Mbps [default]"
+
+msgctxt "#30712"
+msgid "Maximum"
+msgstr "Maximum"
+
+msgctxt "#30713"
+msgid "7.0 Mbps [default]"
+msgstr "7.0 Mbps [default]"
+
+msgctxt "#30714"
+msgid "1000.0 Mbps"
+msgstr "1000.0 Mbps"
+
+msgctxt "#30715"
+msgid "Searches the local network for Jellyfin servers, lets you pick one or enter its address, and then sign in."
+msgstr "Searches the local network for Jellyfin servers, lets you pick one or enter its address, and then sign in."
+
+msgctxt "#30716"
+msgid "Address of your Jellyfin server, including http:// or https:// and the port if needed."
+msgstr "Address of your Jellyfin server, including http:// or https:// and the port if needed."
+
+msgctxt "#30717"
+msgid "Checks the server's HTTPS certificate. Turn off only for a server with a self-signed certificate."
+msgstr "Checks the server's HTTPS certificate. Turn off only for a server with a self-signed certificate."
+
+msgctxt "#30718"
+msgid "Shows the users of the server so you can sign in as someone else. Stops current playback."
+msgstr "Shows the users of the server so you can sign in as someone else. Stops current playback."
+
+msgctxt "#30719"
+msgid "Name of the signed-in user. It is filled in when you sign in."
+msgstr "Name of the signed-in user. It is filled in when you sign in."
+
+msgctxt "#30720"
+msgid "Saves the access token of each user who signs in, so you stay signed in after a restart and can switch back without a password."
+msgstr "Saves the access token of each user who signs in, so you stay signed in after a restart and can switch back without a password."
+
+msgctxt "#30721"
+msgid "Plays the intros the server provides, such as trailers, before an item that starts from the beginning."
+msgstr "Plays the intros the server provides, such as trailers, before an item that starts from the beginning."
+
+msgctxt "#30722"
+msgid "Highest bitrate for direct playback and streaming. The server transcodes videos above it."
+msgstr "Highest bitrate for direct playback and streaming. The server transcodes videos above it."
+
+msgctxt "#30723"
+msgid "Plays files straight from their path on the server, for example an SMB share, when Kodi can reach that path."
+msgstr "Plays files straight from their path on the server, for example an SMB share, when Kodi can reach that path."
+
+msgctxt "#30724"
+msgid "Always transcodes H.265 (HEVC) videos instead of playing them directly."
+msgstr "Always transcodes H.265 (HEVC) videos instead of playing them directly."
+
+msgctxt "#30725"
+msgid "Always transcodes MPEG-2 videos instead of playing them directly."
+msgstr "Always transcodes MPEG-2 videos instead of playing them directly."
+
+msgctxt "#30726"
+msgid "Always transcodes MS-MPEG4 v3 (DivX 3) videos instead of playing them directly."
+msgstr "Always transcodes MS-MPEG4 v3 (DivX 3) videos instead of playing them directly."
+
+msgctxt "#30727"
+msgid "Always transcodes MPEG-4 Part 2 videos instead of playing them directly."
+msgstr "Always transcodes MPEG-4 Part 2 videos instead of playing them directly."
+
+msgctxt "#30728"
+msgid "Always transcodes AV1 videos instead of playing them directly."
+msgstr "Always transcodes AV1 videos instead of playing them directly."
+
+msgctxt "#30729"
+msgid "When to ask which external subtitle to load for a direct streamed video."
+msgstr "When to ask which external subtitle to load for a direct streamed video."
+
+msgctxt "#30730"
+msgid "Video bitrate the server transcodes to."
+msgstr "Video bitrate the server transcodes to."
+
+msgctxt "#30731"
+msgid "Largest video width in pixels when transcoding. Wider videos are scaled down."
+msgstr "Largest video width in pixels when transcoding. Wider videos are scaled down."
+
+msgctxt "#30732"
+msgid "Transcodes H.264 videos with more than 8 bit color depth and keeps transcoded video at 8 bit."
+msgstr "Transcodes H.264 videos with more than 8 bit color depth and keeps transcoded video at 8 bit."
+
+msgctxt "#30733"
+msgid "Audio codec the server uses when transcoding."
+msgstr "Audio codec the server uses when transcoding."
+
+msgctxt "#30734"
+msgid "Audio bitrate the server uses when transcoding."
+msgstr "Audio bitrate the server uses when transcoding."
+
+msgctxt "#30735"
+msgid "Most audio channels allowed when transcoding."
+msgstr "Most audio channels allowed when transcoding."
+
+msgctxt "#30736"
+msgid "Most items queued when you play a whole show, season, album, playlist or library, or an instant mix."
+msgstr "Most items queued when you play a whole show, season, album, playlist or library, or an instant mix."
+
+msgctxt "#30737"
+msgid "Seconds before the end of an episode to show a dialog for the next episode. 0 turns it off; switching it on or off needs a Kodi restart."
+msgstr "Seconds before the end of an episode to show a dialog for the next episode. 0 turns it off; switching it on or off needs a Kodi restart."
+
+msgctxt "#30738"
+msgid "When you stop an episode after watching at least this percentage, the next episode is offered or played. 100 turns it off."
+msgstr "When you stop an episode after watching at least this percentage, the next episode is offered or played. 100 turns it off."
+
+msgctxt "#30739"
+msgid "Asks before playing the next episode. If off, the next episode starts right away."
+msgstr "Asks before playing the next episode. If off, the next episode starts right away."
+
+msgctxt "#30740"
+msgid "Resumes items from the saved position without asking."
+msgstr "Resumes items from the saved position without asking."
+
+msgctxt "#30741"
+msgid "Seconds to go back from the saved position when resuming."
+msgstr "Seconds to go back from the saved position when resuming."
+
+msgctxt "#30742"
+msgid "Stops a video played from JellyCon when the screensaver starts."
+msgstr "Stops a video played from JellyCon when the screensaver starts."
+
+msgctxt "#30743"
+msgid "Shows the user selection when the screensaver ends."
+msgstr "Shows the user selection when the screensaver ends."
+
+msgctxt "#30744"
+msgid "Caches artwork from the server in Kodi while the screensaver is running."
+msgstr "Caches artwork from the server in Kodi while the screensaver is running."
+
+msgctxt "#30745"
+msgid "Minutes between artwork caching runs while the screensaver is running. With 0 it runs once, and again only after library changes."
+msgstr "Minutes between artwork caching runs while the screensaver is running. With 0 it runs once, and again only after library changes."
+
+msgctxt "#30746"
+msgid "Adds the number of unwatched episodes to the names of shows and seasons."
+msgstr "Adds the number of unwatched episodes to the names of shows and seasons."
+
+msgctxt "#30747"
+msgid "Adds the resume position, or the watched share of a show or season, as a percentage to the name."
+msgstr "Adds the resume position, or the watched share of a show or season, as a percentage to the name."
+
+msgctxt "#30748"
+msgid "Adds (cc) to the names of items that have subtitles. Needs Include media stream info."
+msgstr "Adds (cc) to the names of items that have subtitles. Needs Include media stream info."
+
+msgctxt "#30749"
+msgid "Leaves the item count, for example (20), out of the names of menu entries such as In progress and Recently added."
+msgstr "Leaves the item count, for example (20), out of the names of menu entries such as In progress and Recently added."
+
+msgctxt "#30750"
+msgid "Loads the plot of items in lists."
+msgstr "Loads the plot of items in lists."
+
+msgctxt "#30751"
+msgid "Loads video, audio and subtitle stream details of items in lists, for example for skin media flags."
+msgstr "Loads video, audio and subtitle stream details of items in lists, for example for skin media flags."
+
+msgctxt "#30752"
+msgid "Sets the critic rating from the server as the user rating in Kodi."
+msgstr "Sets the critic rating from the server as the user rating in Kodi."
+
+msgctxt "#30753"
+msgid "Loads cast and crew of items in lists."
+msgstr "Loads cast and crew of items in lists."
+
+msgctxt "#30754"
+msgid "Replaces the plot of unwatched episodes with a spoiler notice and their thumbnail with the show poster."
+msgstr "Replaces the plot of unwatched episodes with a spoiler notice and their thumbnail with the show poster."
+
+msgctxt "#30755"
+msgid "How episode names look in lists that mix episodes of several shows, such as Next up, In progress and search results."
+msgstr "How episode names look in lists that mix episodes of several shows, such as Next up, In progress and search results."
+
+msgctxt "#30756"
+msgid "Shows the movies of a collection as one collection item in movie lists."
+msgstr "Shows the movies of a collection as one collection item in movie lists."
+
+msgctxt "#30757"
+msgid "Opens the episode list directly when a show has only one season."
+msgstr "Opens the episode list directly when a show has only one season."
+
+msgctxt "#30758"
+msgid "Adds an All episodes entry to the season list of shows with more than one season."
+msgstr "Adds an All episodes entry to the season list of shows with more than one season."
+
+msgctxt "#30759"
+msgid "Also lists folders without items, such as empty collections or seasons of missing episodes."
+msgstr "Also lists folders without items, such as empty collections or seasons of missing episodes."
+
+msgctxt "#30760"
+msgid "Leaves watched items out of Recently added lists and widgets, recommendations and the random lists."
+msgstr "Leaves watched items out of Recently added lists and widgets, recommendations and the random lists."
+
+msgctxt "#30761"
+msgid "Next up widgets also include shows you rewatched within this many days. 0 turns it off."
+msgstr "Next up widgets also include shows you rewatched within this many days. 0 turns it off."
+
+msgctxt "#30762"
+msgid "Adds the rewatched shows to the normal Next up list instead of replacing it. Needs an extra request to the server."
+msgstr "Adds the rewatched shows to the normal Next up list instead of replacing it. Needs an extra request to the server."
+
+msgctxt "#30763"
+msgid "Splits movie lists into pages with this many movies. 0 turns paging off."
+msgstr "Splits movie lists into pages with this many movies. 0 turns paging off."
+
+msgctxt "#30764"
+msgid "Splits TV show lists into pages with this many shows. 0 turns paging off."
+msgstr "Splits TV show lists into pages with this many shows. 0 turns paging off."
+
+msgctxt "#30765"
+msgid "Number of items in lists such as In progress, Recently added and Next up, and in widgets."
+msgstr "Number of items in lists such as In progress, Recently added and Next up, and in widgets."
+
+msgctxt "#30766"
+msgid "Simple opens the libraries straight from the main menu and skips the submenus inside them."
+msgstr "Simple opens the libraries straight from the main menu and skips the submenus inside them."
+
+msgctxt "#30767"
+msgid "What to do when playback reaches this kind of segment, as marked on the server: show a skip button, skip it automatically or do nothing."
+msgstr "What to do when playback reaches this kind of segment, as marked on the server: show a skip button, skip it automatically or do nothing."
+
+msgctxt "#30768"
+msgid "Keeps a live connection to the server, so other Jellyfin apps can control playback here and changes on the server refresh the widgets."
+msgstr "Keeps a live connection to the server, so other Jellyfin apps can control playback here and changes on the server refresh the widgets."
+
+msgctxt "#30769"
+msgid "Shows JellyCon's own context menu instead of Kodi's for JellyCon items."
+msgstr "Shows JellyCon's own context menu instead of Kodi's for JellyCon items."
+
+msgctxt "#30770"
+msgid "Seconds between changes of the random background image JellyCon provides to skins. 0 turns it off."
+msgstr "Seconds between changes of the random background image JellyCon provides to skins. 0 turns it off."
+
+msgctxt "#30771"
+msgid "Seconds between checks for new or played items, which reload the widgets when something changed. 0 turns it off."
+msgstr "Seconds between checks for new or played items, which reload the widgets when something changed. 0 turns it off."
+
+msgctxt "#30772"
+msgid "Reloads the widgets at every check without asking the server what changed."
+msgstr "Reloads the widgets at every check without asking the server what changed."
+
+msgctxt "#30773"
+msgid "Minutes between new picks for the random movie and TV show lists. 0 turns it off."
+msgstr "Minutes between new picks for the random movie and TV show lists. 0 turns it off."
+
+msgctxt "#30774"
+msgid "Name this device has on the Jellyfin server, for example in the dashboard."
+msgstr "Name this device has on the Jellyfin server, for example in the dashboard."
+
+msgctxt "#30775"
+msgid "Profiles this many of the next add-on calls and saves the results to the add-on data folder, for finding slow code."
+msgstr "Profiles this many of the next add-on calls and saves the results to the add-on data folder, for finding slow code."
+
+msgctxt "#30776"
+msgid "Writes detailed messages to the Kodi log, for troubleshooting."
+msgstr "Writes detailed messages to the Kodi log, for troubleshooting."
+
+msgctxt "#30777"
+msgid "Writes timing data of add-on functions to the Kodi log."
+msgstr "Writes timing data of add-on functions to the Kodi log."
+
+msgctxt "#30778"
+msgid "Shows lists from a local cache first, then reloads them from the server in the background and refreshes the list if it changed."
+msgstr "Shows lists from a local cache first, then reloads them from the server in the background and refreshes the list if it changed."
+
+msgctxt "#30779"
+msgid "Lets widgets use the local cache too. Needs Cache Jellyfin server data requests."
+msgstr "Lets widgets use the local cache too. Needs Cache Jellyfin server data requests."
+
+msgctxt "#30780"
+msgid "Shows a progress dialog while a list is loading."
+msgstr "Shows a progress dialog while a list is loading."
+
+msgctxt "#30781"
+msgid "How many megabytes the connection speed test downloads."
+msgstr "How many megabytes the connection speed test downloads."
+
+msgctxt "#30782"
+msgid "Skin view used for this kind of list. Set it with Set as default view in the JellyCon context menu and clear it with Unset as default view."
+msgstr "Skin view used for this kind of list. Set it with Set as default view in the JellyCon context menu and clear it with Unset as default view."
+
+msgctxt "#30783"
+msgid "Sort order this kind of list opens with. NotSet keeps JellyCon's usual order for the list."
+msgstr "Sort order this kind of list opens with. NotSet keeps JellyCon's usual order for the list."
+
+msgctxt "#30784"
 msgid "Login rejected by server (HTTP 401)"
 msgstr "Login rejected by server (HTTP 401)"
 
-msgctxt "#30684"
+msgctxt "#30785"
 msgid "{0} failed: {1}"
 msgstr "{0} failed: {1}"
 
-msgctxt "#30685"
+msgctxt "#30786"
 msgid "Server not reachable"
 msgstr "Server not reachable"
 
-msgctxt "#30686"
+msgctxt "#30787"
 msgid "Server did not respond in time"
 msgstr "Server did not respond in time"
 
-msgctxt "#30687"
+msgctxt "#30788"
 msgid "Item not found on server"
 msgstr "Item not found on server"
 
-msgctxt "#30688"
+msgctxt "#30789"
 msgid "Access not allowed (e.g. outside allowed hours)"
 msgstr "Access not allowed (e.g. outside allowed hours)"
 
-msgctxt "#30689"
+msgctxt "#30790"
 msgid "Server error (HTTP {0})"
 msgstr "Server error (HTTP {0})"
 
-msgctxt "#30690"
+msgctxt "#30791"
 msgid "Request rejected (HTTP {0})"
 msgstr "Request rejected (HTTP {0})"
 
-msgctxt "#30691"
+msgctxt "#30792"
 msgid "Server reachable again"
 msgstr "Server reachable again"
 
-msgctxt "#30692"
+msgctxt "#30793"
 msgid "Loading item"
 msgstr "Loading item"
 
-msgctxt "#30693"
+msgctxt "#30794"
 msgid "The server rejected the saved login of {0} (HTTP 401). It may have been revoked, e.g. because the user was disabled.[CR]Sign in again, or retry with the saved login?"
 msgstr "The server rejected the saved login of {0} (HTTP 401). It may have been revoked, e.g. because the user was disabled.[CR]Sign in again, or retry with the saved login?"
 
-msgctxt "#30694"
+msgctxt "#30795"
 msgid "Sign in again"
 msgstr "Sign in again"
 
-msgctxt "#30695"
+msgctxt "#30796"
 msgid "Retry"
 msgstr "Retry"
 
-msgctxt "#30696"
+msgctxt "#30797"
 msgid "Login accepted again"
 msgstr "Login accepted again"
 
-msgctxt "#30697"
+msgctxt "#30798"
 msgid "Loading"
 msgstr "Loading"
