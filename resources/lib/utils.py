@@ -193,7 +193,12 @@ def get_version():
     return version
 
 
-def save_user_details(user_name, user_id, token):
+def save_user_details(user_name, user_id, token, password=None):
+    '''
+    Save the login of a user. With a password (also an empty one), JellyCon
+    can sign in again by itself when the server revokes the token, e.g.
+    because the user was disabled for a while.
+    '''
     settings = xbmcaddon.Addon()
     save_user_to_settings = settings.getSetting(
         'save_user_to_settings') == 'true'
@@ -212,6 +217,8 @@ def save_user_details(user_name, user_id, token):
             'user_id': user_id,
             'token': token
         }
+        if password is not None:
+            auth_data[user_name]['password'] = password
 
         with open(os.path.join(addon_data, 'auth.json'), 'wb') as outfile:
             data = json.dumps(
@@ -281,6 +288,8 @@ def load_user_details():
         user_details['user_name'] = user_name
         user_details['user_id'] = user_id
         user_details['token'] = auth_token
+        if 'password' in user_data:
+            user_details['password'] = user_data['password']
         return user_details
 
     else:
