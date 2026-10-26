@@ -221,6 +221,7 @@ def check_server(force=False, change_user=False, notify=False):
 
         # Initialize auth variable
         auth = {}
+        saved_password = None
 
         # Check if quick connect is active on the server, initiate connection
         quick = api.post('/QuickConnect/Initiate')
@@ -323,6 +324,8 @@ def check_server(force=False, change_user=False, notify=False):
                         something_changed = False
                         log.info('There was an error logging in with user {}'.format(selected_user_name))
                         xbmcgui.Dialog().ok(__addon_name__, translate_string(30446))
+                    elif ask_save_password(password):
+                        saved_password = password
 
         if something_changed:
             home_window = HomeWindow()
@@ -333,11 +336,31 @@ def check_server(force=False, change_user=False, notify=False):
             else:
                 token = user_details.get('token')
                 user_id = user_details.get('user_id')
-            save_user_details(selected_user_name, user_id, token)
+                # Switching back to a saved user keeps their saved password
+                saved_password = user_details.get('password')
+            save_user_details(selected_user_name, user_id, token, saved_password)
             xbmc.executebuiltin("ActivateWindow(Home)")
             if "estuary_jellycon" in xbmc.getSkinDir():
                 xbmc.executebuiltin("SetFocus(9000, 0, absolute)")
             xbmc.executebuiltin("ReloadSkin()")
+
+
+def ask_save_password(password):
+    '''
+    Ask whether to save the password next to the token, so JellyCon can sign
+    in again by itself when the server deletes the token (it does that when
+    the user is disabled). A user without a password needs no question.
+    '''
+    settings = xbmcaddon.Addon()
+    if settings.getSetting('save_user_to_settings') != 'true':
+        return False
+    if settings.getSetting('allow_password_saving') != 'true':
+        return False
+    if not password:
+        return True
+    return xbmcgui.Dialog().yesno(__addon_name__, translate_string(30799),
+                                  nolabel=translate_string(30800),
+                                  yeslabel=translate_string(30801))
 
 
 def user_select(api, current_username, code):

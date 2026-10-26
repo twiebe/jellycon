@@ -261,3 +261,93 @@ def test_action_failure_not_repeated_after_unreachable_notification(env):
     api.notify_failed(30271)
     # Only "Server not reachable", no second toast for the same problem
     assert [n[1] for n in calls['notifications']] == ['30786']
+
+
+@pytest.fixture
+def saved_login(monkeypatch):
+    saved = []
+    user_details = {'user_name': 'tester', 'user_id': 'user-id', 'token': 'token', 'password': 'secret'}
+    monkeypatch.setattr(jellyfin, 'load_user_details', lambda: user_details)
+    monkeypatch.setattr(jellyfin, 'save_user_details', lambda *args: saved.append(args))
+    return user_details, saved
+
+
+def test_rejected_token_is_renewed_with_saved_password(env, saved_login):
+    api, responses, calls = env
+    _, saved = saved_login
+    responses.extend([FakeResponse(401),
+                      FakeResponse(200, {'AccessToken': 'new', 'User': {'Id': 'user-id'}}),
+                      FakeResponse(200, {'Type': 'Movie'})])
+
+    assert api.get('/Items/1') == {'Type': 'Movie'}
+    assert [url for _, url in calls['requests']] == [
+        'http://server/Items/1', 'http://server/Users/AuthenticateByName', 'http://server/Items/1']
+    assert saved == [('tester', 'user-id', 'new', 'secret')]
+    assert not api.token_rejected
+    assert 'auth_rejected' not in FakeWindow.properties
+
+
+def test_rejected_token_without_saved_password_is_reported(env, saved_login):
+    api, responses, calls = env
+    user_details, _ = saved_login
+    del user_details['password']
+    responses.append(FakeResponse(401))
+
+    assert api.get('/Items/1') == {}
+    assert len(calls['requests']) == 1
+    assert api.token_rejected
+    assert FakeWindow.properties['auth_rejected'] == 'true'
+
+
+def test_failed_renewal_is_not_repeated_right_away(env, saved_login):
+    # A disabled user cannot sign in, don't try again on every request
+    api, responses, calls = env
+    responses.extend([FakeResponse(401), FakeResponse(401), FakeResponse(401)])
+
+    api.get('/Items/1')
+    api.get('/Items/2')
+
+    assert [url for _, url in calls['requests']] == [
+        'http://server/Items/1', 'http://server/Users/AuthenticateByName', 'http://server/Items/2']
+    assert api.token_rejected
+    assert FakeWindow.properties['auth_rejected'] == 'true'
+
+
+def test_token_renewed_elsewhere_is_used_without_signing_in(env, saved_login):
+    api, responses, calls = env
+    user_details, saved = saved_login
+    user_details['token'] = 'renewed-by-service'
+    responses.extend([FakeResponse(401), FakeResponse(200, {'Type': 'Movie'})])
+
+    assert api.get('/Items/1') == {'Type': 'Movie'}
+    assert len(calls['requests']) == 2
+    assert saved == []
+
+
+def test_disabled_user_waits_for_renewal_without_asking(env, saved_login, monkeypatch):
+    api, responses, calls = env
+    _, saved = saved_login
+    now = [1000.0]
+    monkeypatch.setattr(jellyfin.time, 'time', lambda: now[0])
+
+    # Disabled: the login is refused with 403, once announced, no dialog
+    responses.extend([FakeResponse(401), FakeResponse(403)])
+    assert api.get('/Items/1') == {}
+    assert not api.token_rejected
+    assert api.last_error == '30804'
+    assert 'auth_rejected' not in FakeWindow.properties
+
+    # Further requests don't try to sign in until the delay passed
+    responses.append(FakeResponse(401))
+    api.get('/Items/2')
+    assert not api.token_rejected
+    assert len(calls['requests']) == 3
+
+    # Enabled again: the next attempt signs in and says so
+    now[0] += jellyfin.RENEW_RETRY_DELAY
+    responses.extend([FakeResponse(401),
+                      FakeResponse(200, {'AccessToken': 'new', 'User': {'Id': 'user-id'}}),
+                      FakeResponse(200, {'Type': 'Movie'})])
+    assert api.get('/Items/3') == {'Type': 'Movie'}
+    assert saved == [('tester', 'user-id', 'new', 'secret')]
+    assert [n[1] for n in calls['notifications']] == ['30804', '30797']
