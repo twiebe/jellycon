@@ -1,4 +1,4 @@
-version: '1:1.0.2-3'
+version: '1:1.0.2-4'
 changelog: |-
   Fork of JellyCon 1.0.2 (twiebe)
   -------------------------------
@@ -8,6 +8,7 @@ changelog: |-
   + Short help text for every visible setting
   + Context menu works again when Kodi started before the user logged in
   + A user switch is picked up right away, without restarting Kodi
+  + Optionally save the password, so JellyCon signs in again by itself after the user was disabled
 dependencies:
   py2:
     - addon: 'xbmc.python'
