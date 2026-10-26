@@ -1704,3 +1704,27 @@ msgstr "Login accepted again"
 msgctxt "#30798"
 msgid "Loading"
 msgstr "Loading"
+
+msgctxt "#30799"
+msgid "The server deletes the saved access token when the user is disabled. With the password saved as well, JellyCon signs in again by itself once the user is enabled.[CR]Save the password (unencrypted)?"
+msgstr "The server deletes the saved access token when the user is disabled. With the password saved as well, JellyCon signs in again by itself once the user is enabled.[CR]Save the password (unencrypted)?"
+
+msgctxt "#30800"
+msgid "Token only"
+msgstr "Token only"
+
+msgctxt "#30801"
+msgid "Save password"
+msgstr "Save password"
+
+msgctxt "#30802"
+msgid "Offer to save the password at sign-in"
+msgstr "Offer to save the password at sign-in"
+
+msgctxt "#30803"
+msgid "After you sign in with a password, asks whether to save it as well. With a saved password, JellyCon signs in again by itself when the server has deleted the access token, e.g. after the user was disabled for a while. The password is stored unencrypted."
+msgstr "After you sign in with a password, asks whether to save it as well. With a saved password, JellyCon signs in again by itself when the server has deleted the access token, e.g. after the user was disabled for a while. The password is stored unencrypted."
+
+msgctxt "#30804"
+msgid "The user is disabled on the server. JellyCon signs in again once the user is enabled."
+msgstr "The user is disabled on the server. JellyCon signs in again once the user is enabled."

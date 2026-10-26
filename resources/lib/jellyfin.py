@@ -3,6 +3,8 @@ from __future__ import (
 )
 
 import json
+import threading
+import time
 
 import requests
 import xbmc
@@ -11,13 +13,18 @@ import xbmcgui
 from kodi_six.utils import py2_decode
 
 from .utils import (
-    get_device_id, get_version, load_user_details, clear_user_details,
-    translate_string
+    get_device_id, get_version, load_user_details, save_user_details,
+    clear_user_details, translate_string
 )
 from .kodi_utils import HomeWindow
 from .lazylogger import LazyLogger
 
 log = LazyLogger(__name__)
+
+# Seconds between two attempts to sign in again with a saved password, so a
+# disabled user does not get a failed login for every background request
+RENEW_RETRY_DELAY = 60
+renew_lock = threading.Lock()
 
 
 class API:
@@ -29,15 +36,19 @@ class API:
 
         self.headers = {}
         self.last_error = None
+        self.last_status = None
         self.error_notified = False
         self.token_rejected = False
         self.create_headers()
         self.verify_cert = settings.getSetting('verify_cert') == 'true'
 
-    def request(self, method, path, payload=None, timeout=5):
+    def request(self, method, path, payload=None, timeout=5, renew=True):
         '''
         Send a request to the server. Returns a tuple (ok, data): ok is True
         for a 2xx response, data is the decoded JSON body or {}.
+
+        When the server refuses our token and the password is saved, sign in
+        again and repeat the request once (renew=False for the repetition).
 
         On failure, self.last_error holds a short reason for the user and
         self.error_notified tells whether a notification about it was just
@@ -47,6 +58,7 @@ class API:
         unreachable server or a rejected login once, not on every request.
         '''
         self.last_error = None
+        self.last_status = None
         self.error_notified = False
         self.token_rejected = False
 
@@ -74,14 +86,27 @@ class API:
             return False, {}
 
         self.set_server_reachable(True)
+        self.last_status = r.status_code
 
         if not r.ok:
             log.error('{0} {1} failed: HTTP {2} {3}'.format(
                 method, path, r.status_code, r.text[:200]))
-            self.last_error = self.describe_status(r.status_code)
+            renewal = None
             if r.status_code == 401 and self.is_token_rejection(path):
-                self.token_rejected = True
-                HomeWindow().set_property('auth_rejected', 'true')
+                renewal = self.renew_token() if renew else None
+                # The login attempt replaced it
+                self.last_status = r.status_code
+                if renewal == 'renewed':
+                    return self.request(method, path, payload, timeout, renew=False)
+                if renewal != 'disabled':
+                    self.token_rejected = True
+                    HomeWindow().set_property('auth_rejected', 'true')
+            if renewal == 'disabled':
+                # Nothing for the user to resolve: the saved password signs
+                # in again once the user is enabled on the server
+                self.last_error = translate_string(30804)
+            else:
+                self.last_error = self.describe_status(r.status_code)
             return False, {}
 
         # The token works (again), e.g. after a retry or a new login
@@ -174,6 +199,47 @@ class API:
         return not path.startswith(('/Users/AuthenticateByName', '/Users/AuthenticateWithQuickConnect',
                                     '/QuickConnect/'))
 
+    def renew_token(self):
+        '''
+        Sign in again with the saved password after the server refused our
+        token, e.g. because the user was disabled and the server deleted its
+        tokens. Returns 'renewed' when there is a new token to retry with,
+        'disabled' while the server refuses the login of a disabled user
+        (HTTP 403), 'failed' when the login failed otherwise, e.g. because
+        the password changed, and None without a saved password.
+        '''
+        with renew_lock:
+            user_details = load_user_details()
+            password = user_details.get('password')
+            if password is None:
+                return None
+            # Another thread or process got a new token in the meantime
+            if user_details.get('token') and user_details.get('token') != self.token:
+                return 'renewed'
+
+            # Remembered as "<time> <result>"
+            home_window = HomeWindow()
+            last_failure = home_window.get_property('token_renew_failed').split()
+            if last_failure and time.time() - float(last_failure[0]) < RENEW_RETRY_DELAY:
+                return last_failure[1]
+            was_disabled = last_failure[1:] == ['disabled']
+
+            user_name = user_details.get('user_name')
+            log.info('Token of user {0} was rejected, signing in again with the saved password'.format(user_name))
+            auth = self.authenticate({'username': user_name, 'pw': password})
+            if not auth:
+                result = 'disabled' if self.last_status == 403 else 'failed'
+                home_window.set_property('token_renew_failed', '{0} {1}'.format(time.time(), result))
+                if result == 'disabled' and not was_disabled:
+                    self.notify(translate_string(30804), xbmcgui.NOTIFICATION_INFO)
+                return result
+
+            home_window.clear_property('token_renew_failed')
+            save_user_details(user_name, auth['User']['Id'], auth['AccessToken'], password)
+            if was_disabled:
+                self.notify(translate_string(30797), xbmcgui.NOTIFICATION_INFO)
+            return 'renewed'
+
     def resolve_unauthorized(self, relogin=True):
         '''
         Ask the user what to do about a rejected token: sign in again, retry
@@ -193,6 +259,9 @@ class API:
                 choice = self.ask_unauthorized(user_name)
 
                 if choice == 'retry':
+                    # Sign in with a saved password right away, not only
+                    # after the delay between background attempts
+                    home_window.clear_property('token_renew_failed')
                     ok, _ = self.request('GET', '/Users/Me')
                     if ok:
                         self.notify(translate_string(30797), xbmcgui.NOTIFICATION_INFO)
