@@ -93,7 +93,7 @@
 					<default>true</default>
 					<control type="toggle"/>
 				</setting>
-				<setting id="allow_password_saving" type="boolean" label="30367">
+				<setting id="allow_password_saving" type="boolean" label="30802" help="30803">
 					<level>0</level>
 					<default>true</default>
 					<control type="toggle"/>
