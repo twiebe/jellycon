@@ -19,6 +19,7 @@
     <source>https://github.com/jellyfin/jellycon</source>
     <summary lang="en_GB">Browse and play your Jellyfin server media library.</summary>
     <description lang="en_GB">An addon to allow you to browse and playback your Jellyfin (https://jellyfin.org) Movie, TV Show and Music collections.</description>
+    <news></news>
     <assets>
         <icon>icon.png</icon>
         <fanart>fanart.jpg</fanart>
