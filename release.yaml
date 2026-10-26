@@ -1,4 +1,4 @@
-version: '1:1.0.2-2'
+version: '1:1.0.2-3'
 changelog: |-
   Fork of JellyCon 1.0.2 (twiebe)
   -------------------------------
@@ -7,6 +7,7 @@ changelog: |-
   + Settings converted to settings format version 1
   + Short help text for every visible setting
   + Context menu works again when Kodi started before the user logged in
+  + A user switch is picked up right away, without restarting Kodi
 dependencies:
   py2:
     - addon: 'xbmc.python'
