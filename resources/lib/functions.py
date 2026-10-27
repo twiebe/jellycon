@@ -966,7 +966,10 @@ def play_action(params):
     # set all the playback info, this will be picked up by the service
     # the service will then start the playback
 
-    xbmc.Player().stop()
+    # stop() blocks Kodi, so only call it when there is something to stop
+    player = xbmc.Player()
+    if player.isPlaying() or xbmc.getCondVisibility('Player.HasMedia'):
+        player.stop()
 
     play_info = {}
     play_info["action"] = action
