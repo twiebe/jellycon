@@ -1,27 +1,22 @@
 # coding=utf-8
 # Gnu General Public License - see LICENSE.TXT
 
-import time
-import traceback
-
 import xbmc
 import xbmcaddon
 import xbmcgui
 
 from resources.lib.lazylogger import LazyLogger
-from resources.lib.jellyfin import api
-from resources.lib.play_utils import Service, PlaybackService, send_progress
+from resources.lib.play_utils import Service, PlaybackService
 from resources.lib.kodi_utils import HomeWindow
-from resources.lib.widgets import set_background_image, set_random_movies, set_random_tvshows, set_random_all
 from resources.lib.websocket_client import WebSocketClient
-from resources.lib.menu_functions import set_library_window_values
-from resources.lib.server_detect import check_server, check_connection_speed
+from resources.lib.server_detect import check_server
 from resources.lib.monitors import LibraryChangeMonitor, ContextMonitor
 from resources.lib.datamanager import clear_old_cache_data, clear_cached_server_data
 from resources.lib.tracking import set_timing_enabled
 from resources.lib.image_server import HttpImageServerThread
 from resources.lib.playnext import PlayNextService
 from resources.lib.intro_skipper import IntroSkipperService
+from resources.lib.service_tasks import ServiceTasks
 
 settings = xbmcaddon.Addon()
 
@@ -70,12 +65,6 @@ monitor = Service()
 playback_service = PlaybackService(monitor)
 
 home_window = HomeWindow()
-last_progress_update = time.time()
-last_content_check = time.time()
-last_background_update = 0
-last_random_movie_update = 0
-last_random_tvshow_update = 0
-last_random_all_update = 0
 
 # start the library update monitor
 library_change_monitor = LibraryChangeMonitor()
@@ -104,11 +93,6 @@ if context_menu:
 intro_skipper = IntroSkipperService(monitor)
 intro_skipper.start()
 
-background_interval = int(settings.getSetting('background_interval'))
-newcontent_interval = int(settings.getSetting('new_content_check_interval'))
-random_movie_list_interval = int(settings.getSetting('random_movie_refresh_interval'))
-random_movie_list_interval = random_movie_list_interval * 60
-
 enable_logging = settings.getSetting('log_debug') == "true"
 if enable_logging:
     xbmcgui.Dialog().notification(settings.getAddonInfo('name'),
@@ -116,86 +100,21 @@ if enable_logging:
                                   time=8000,
                                   icon=xbmcgui.NOTIFICATION_WARNING)
 
-prev_user = home_window.get_property("user_name")
-first_run = True
 home_window.set_property('exit', 'False')
 
+# The periodic work runs on its own thread, so this thread is free to run
+# the callbacks of the Player and Monitor above, which Kodi only calls while
+# this thread waits in waitForAbort()
+service_tasks = ServiceTasks(library_change_monitor, websocket_client, remote_control)
+service_tasks.start()
+
 while home_window.get_property('exit') == 'False' and not kodi_monitor.abortRequested():
-    try:
-        if xbmc.Player().isPlaying():
-            last_random_movie_update = time.time() - (random_movie_list_interval - 15)
-            # if playing every 10 seconds updated the server with progress
-            if (time.time() - last_progress_update) > 10:
-                last_progress_update = time.time()
-                send_progress()
-
-        else:
-            screen_saver_active = xbmc.getCondVisibility("System.ScreenSaverActive")
-
-            if not screen_saver_active:
-                # The server rejected our token, ask the user what to do
-                if (home_window.get_property('auth_rejected') == 'true'
-                        and home_window.get_property('auth_rejected_snoozed') != 'true'):
-                    api.resolve_unauthorized()
-
-                user_changed = False
-                if prev_user != home_window.get_property("user_name"):
-                    log.debug("user_change_detected")
-                    prev_user = home_window.get_property("user_name")
-                    user_changed = True
-
-                if user_changed or first_run:
-                    settings = xbmcaddon.Addon()
-                    server_speed_check_data = settings.getSetting("server_speed_check_data")
-                    server_host = settings.getSetting('server_address')
-                    if server_host is not None and server_host != "" and server_host != "<none>" and server_host not in server_speed_check_data:
-                        message = "This is the first time you have connected to this server.\nDo you want to run a connection speed test?"
-                        response = xbmcgui.Dialog().yesno("First Connection", message)
-                        if response:
-                            speed = check_connection_speed()
-                            if speed > 0:
-                                settings.setSetting("server_speed_check_data", server_host + "-" + str(speed))
-                        else:
-                            settings.setSetting("server_speed_check_data", server_host + "-skipped")
-
-                if user_changed or (random_movie_list_interval != 0 and (time.time() - last_random_movie_update) > random_movie_list_interval):
-                    last_random_movie_update = time.time()
-                    set_random_movies()
-
-                if user_changed or (random_movie_list_interval != 0 and (time.time() - last_random_tvshow_update) > random_movie_list_interval):
-                    last_random_tvshow_update = time.time()
-                    set_random_tvshows()
-
-                if user_changed or (random_movie_list_interval != 0 and (time.time() - last_random_all_update) > random_movie_list_interval):
-                    last_random_all_update = time.time()
-                    set_random_all()
-
-                if user_changed or (newcontent_interval != 0 and (time.time() - last_content_check) > newcontent_interval):
-                    last_content_check = time.time()
-                    library_change_monitor.check_for_updates()
-
-                if user_changed or (background_interval != 0 and (time.time() - last_background_update) > background_interval):
-                    last_background_update = time.time()
-                    set_library_window_values(user_changed)
-                    set_background_image(user_changed)
-
-                if remote_control and user_changed:
-                    websocket_client.stop_client()
-                    websocket_client = WebSocketClient(library_change_monitor)
-                    websocket_client.start()
-
-            elif screen_saver_active:
-                last_random_movie_update = time.time() - (random_movie_list_interval - 15)
-                if background_interval != 0 and ((time.time() - last_background_update) > background_interval):
-                    last_background_update = time.time()
-                    set_background_image(False)
-
-    except Exception as error:
-        log.error("Exception in Playback Monitor: {0}".format(error))
-        log.error("{0}".format(traceback.format_exc()))
-
-    first_run = False
     kodi_monitor.waitForAbort(1)
+
+service_tasks.stop()
+# Kodi kills a service that needs more than 5 seconds to stop
+service_tasks.join(2)
+websocket_client = service_tasks.websocket_client
 
 image_server.stop()
 

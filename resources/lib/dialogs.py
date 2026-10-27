@@ -217,10 +217,19 @@ class SkipDialog(xbmcgui.WindowXMLDialog):
     end = None
     
     has_been_dismissed_or_skipped = False
+    is_shown = False
 
     def __init__(self, *args, **kwargs):
         log.debug("SkipDialog: __init__")
         xbmcgui.WindowXML.__init__(self, *args, **kwargs)
+
+    def show(self):
+        self.is_shown = True
+        xbmcgui.WindowXMLDialog.show(self)
+
+    def close(self):
+        self.is_shown = False
+        xbmcgui.WindowXMLDialog.close(self)
 
     def onInit(self):
         log.debug("SkipDialog: onInit")
