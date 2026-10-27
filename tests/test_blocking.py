@@ -2,7 +2,7 @@ from __future__ import (
     division, absolute_import, print_function, unicode_literals
 )
 
-from resources.lib import dialogs, functions, intro_skipper
+from resources.lib import dialogs, functions, intro_skipper, play_utils
 
 
 class FakePlayer(object):
@@ -96,3 +96,37 @@ class FakeAction(object):
 
     def getId(self):
         return self.action_id
+
+
+class FakePlayNextDialog(object):
+    def __init__(self, *args):
+        pass
+
+    def set_episode_info(self, info):
+        pass
+
+    def doModal(self):
+        pass
+
+    def get_play_called(self):
+        return False
+
+
+def test_dismissed_play_next_dialog_does_not_refresh_container(monkeypatch):
+    builtins = []
+    stop_settings = {
+        'promptPlayNextEpisodePercentage': '90',
+        'promptPlayNextEpisodePercentage_prompt': 'true',
+        'promptDeleteEpisodePercentage': '100',
+        'promptDeleteMoviePercentage': '100',
+    }
+    monkeypatch.setattr(play_utils.settings, 'getSetting', lambda name: stop_settings.get(name, ''))
+    monkeypatch.setattr(play_utils.settings, 'getAddonInfo', lambda name: '')
+    monkeypatch.setattr(play_utils, 'PlayNextDialog', FakePlayNextDialog)
+    monkeypatch.setattr(play_utils.xbmc, 'executebuiltin', lambda *args: builtins.append(args))
+
+    play_utils.prompt_for_stop_actions('item', {
+        'current_position': 95, 'duration': 100,
+        'next_episode': {'Id': 'next'}, 'item_type': 'Episode'})
+
+    assert builtins == []

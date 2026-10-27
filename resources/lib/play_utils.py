@@ -1113,9 +1113,6 @@ def prompt_for_stop_actions(item_id, data):
             play_next_dialog.set_episode_info(next_episode)
             play_next_dialog.doModal()
 
-            if not play_next_dialog.get_play_called():
-                xbmc.executebuiltin("Container.Refresh")
-
         else:
             play_info = {
                 "item_id": next_episode.get("Id"),
