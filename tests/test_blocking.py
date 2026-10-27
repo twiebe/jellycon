@@ -2,7 +2,13 @@ from __future__ import (
     division, absolute_import, print_function, unicode_literals
 )
 
-from resources.lib import dialogs, functions, intro_skipper, play_utils
+import base64
+import threading
+
+import pytest
+import requests
+
+from resources.lib import dialogs, functions, image_server, intro_skipper, play_utils
 
 
 class FakePlayer(object):
@@ -130,3 +136,42 @@ def test_dismissed_play_next_dialog_does_not_refresh_container(monkeypatch):
         'next_episode': {'Id': 'next'}, 'item_type': 'Episode'})
 
     assert builtins == []
+
+
+def test_image_server_serves_while_a_collage_hangs(monkeypatch):
+    release = threading.Event()
+
+    def build_image(path):
+        if path == '/hang':
+            release.wait(10)
+        return b'image'
+
+    monkeypatch.setattr(image_server, 'pil_loaded', True)
+    monkeypatch.setattr(image_server, 'build_image', build_image)
+    server = image_server.ImageHTTPServer(('127.0.0.1', 0), image_server.HttpImageHandler)
+    threading.Thread(target=server.serve_forever).start()
+    url = 'http://127.0.0.1:{0}/'.format(server.server_address[1])
+    try:
+        threading.Thread(target=requests.get, args=(url + 'hang',)).start()
+        assert requests.get(url + 'quick', timeout=3).content == b'image'
+    finally:
+        release.set()
+        server.shutdown()
+        server.server_close()
+
+
+def test_collage_images_are_fetched_with_timeout(monkeypatch):
+    pytest.importorskip('PIL')
+    fetched = []
+
+    def get(url, **kwargs):
+        fetched.append(kwargs)
+        raise requests.exceptions.Timeout()
+
+    monkeypatch.setattr(image_server, 'get_image_links',
+                        lambda url: [{'thumb': 'http://server:8096/Items/1/Images/Primary'}])
+    monkeypatch.setattr(image_server.requests, 'get', get)
+
+    image_server.build_image('/' + base64.b64encode(b'/Items').decode())
+
+    assert fetched[0].get('timeout')

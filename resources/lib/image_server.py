@@ -12,6 +12,7 @@ import xbmcvfs
 import xbmc
 import xbmcaddon
 import requests
+from six.moves import socketserver
 from six.moves.BaseHTTPServer import BaseHTTPRequestHandler, HTTPServer
 from six.moves.urllib.parse import urlparse
 from six import ensure_text
@@ -29,6 +30,8 @@ except ImportError:
     pil_loaded = False
 
 PORT_NUMBER = 24276
+# Seconds to connect to and read from the server for one collage image
+IMAGE_TIMEOUT = (5, 20)
 log = LazyLogger(__name__)
 
 
@@ -111,7 +114,7 @@ def build_image(path):
             log.debug("Loading image from : {0} {1} {2}".format(image_count, server, url_full_path))
 
             try:
-                image_response = requests.get(thumb_url)
+                image_response = requests.get(thumb_url, timeout=IMAGE_TIMEOUT)
                 image_data = image_response.content
 
                 loaded_image = Image.open(io.BytesIO(image_data))
@@ -187,6 +190,11 @@ class HttpImageHandler(BaseHTTPRequestHandler):
             del image
 
 
+class ImageHTTPServer(socketserver.ThreadingMixIn, HTTPServer):
+    # One thread per request, so a slow collage does not hold up the others
+    daemon_threads = True
+
+
 class HttpImageServerThread(threading.Thread):
 
     def __init__(self):
@@ -200,7 +208,7 @@ class HttpImageServerThread(threading.Thread):
 
     def run(self):
         log.debug("HttpImageServerThread:started")
-        self.server = HTTPServer(('', PORT_NUMBER), HttpImageHandler)
+        self.server = ImageHTTPServer(('', PORT_NUMBER), HttpImageHandler)
 
         while self.keep_running:
             self.server.serve_forever()
