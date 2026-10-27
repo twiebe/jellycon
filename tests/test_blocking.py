@@ -193,3 +193,96 @@ def test_context_monitor_polls_at_most_four_times_a_second(monkeypatch):
     monitor.run()
 
     assert sleeps == [250]
+
+
+class FakeVideoTag(object):
+    resume_point = None
+
+    def setResumePoint(self, time, total_time):
+        self.resume_point = (time, total_time)
+
+
+class FakeListItem(object):
+    def __init__(self):
+        self.properties = {}
+        self.video_tag = FakeVideoTag()
+
+    def setProperty(self, key, value):
+        self.properties[key] = value
+
+    def getVideoInfoTag(self):
+        return self.video_tag
+
+
+def test_start_offset_is_set_for_playlist_and_resolved_play():
+    list_item = FakeListItem()
+
+    play_utils.set_start_offset(list_item, 600, 3000)
+
+    assert list_item.properties['StartOffset'] == '600'
+    assert list_item.video_tag.resume_point == (600, 3000)
+
+
+def test_play_from_start_clears_server_resume_point():
+    list_item = FakeListItem()
+    list_item.video_tag.resume_point = (600, 3000)
+
+    play_utils.set_start_offset(list_item, 0, 3000)
+
+    assert list_item.properties['StartOffset'] == '0'
+    assert list_item.video_tag.resume_point == (0, 3000)
+
+
+def test_start_offset_without_known_duration_still_counts():
+    list_item = FakeListItem()
+
+    play_utils.set_start_offset(list_item, 600, 0)
+
+    assert list_item.video_tag.resume_point[1] > 0
+
+
+class FakeStartingPlayer(object):
+    def __init__(self, positions):
+        self.positions = list(positions)
+        self.seeks = []
+
+    def isPlaying(self):
+        return True
+
+    def getTime(self):
+        return self.positions.pop(0) if len(self.positions) > 1 else self.positions[0]
+
+    def seekTime(self, seconds):
+        self.seeks.append(seconds)
+
+
+def patch_monitor(monkeypatch):
+    monkeypatch.setattr(play_utils.xbmc.Monitor, 'waitForAbort', lambda self, timeout=0: False)
+
+
+def test_resolved_play_is_not_seeked_when_it_starts_at_the_offset(monkeypatch):
+    patch_monitor(monkeypatch)
+    player = FakeStartingPlayer([0, 0, 598])
+
+    play_utils.correct_start_position(player, 600)
+
+    assert player.seeks == []
+
+
+def test_resolved_play_seeks_once_when_kodi_starts_elsewhere(monkeypatch):
+    # Kodi prefers its own saved bookmark for a resolved plugin URL
+    patch_monitor(monkeypatch)
+    player = FakeStartingPlayer([0, 1250])
+
+    play_utils.correct_start_position(player, 600)
+
+    assert player.seeks == [600]
+
+
+def test_resolved_play_from_start_seeks_back_from_kodi_bookmark(monkeypatch):
+    patch_monitor(monkeypatch)
+    player = FakeStartingPlayer([0, 1250])
+
+    play_utils.correct_start_position(player, 0)
+
+    assert player.seeks == [0]
