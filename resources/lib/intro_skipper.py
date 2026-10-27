@@ -68,6 +68,9 @@ class IntroSkipperService(threading.Thread):
                         skip_dialog[segment_type] = self.handle_dialog(plugin_path_real, dialog, item_id, current_ticks, player, segment)
 
             else:
+                for dialog in skip_dialog.values():
+                    if dialog is not None and dialog.is_shown:
+                        dialog.close()
                 playing_item_id = None
                 segments = None
                 skip_dialog = {}
@@ -110,11 +113,12 @@ class IntroSkipperService(threading.Thread):
                 xbmcgui.Dialog().notification("JellyCon", "{0} Skipped".format(segment_type))
             elif skip_action == "0":
                 # Otherwise show skip dialog
+                # show() and close() block Kodi, so only call them when the state changes
                 if is_segment and not dialog.has_been_dismissed_or_skipped:
-                    log.debug("SkipService: {0} is playing, showing dialog".format(segment_type))
-                    dialog.show()
-                else:
-                    # Could not find doc on what happens when closing a closed dialog, but it seems fine
+                    if not dialog.is_shown:
+                        log.debug("SkipService: {0} is playing, showing dialog".format(segment_type))
+                        dialog.show()
+                elif dialog.is_shown:
                     log.debug("SkipService: {0} is not playing, closing dialog".format(segment_type))
                     dialog.close()
 
