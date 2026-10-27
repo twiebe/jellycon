@@ -8,7 +8,7 @@ import threading
 import pytest
 import requests
 
-from resources.lib import dialogs, functions, image_server, intro_skipper, play_utils
+from resources.lib import dialogs, functions, image_server, intro_skipper, monitors, play_utils
 
 
 class FakePlayer(object):
@@ -175,3 +175,21 @@ def test_collage_images_are_fetched_with_timeout(monkeypatch):
     image_server.build_image('/' + base64.b64encode(b'/Items').decode())
 
     assert fetched[0].get('timeout')
+
+
+def test_context_monitor_polls_at_most_four_times_a_second(monkeypatch):
+    monitor = monitors.ContextMonitor()
+    sleeps = []
+
+    def sleep(milliseconds):
+        sleeps.append(milliseconds)
+        monitor.stop_thread = True
+
+    monkeypatch.setattr(monitors.xbmc.Monitor, 'abortRequested', lambda self: False)
+    monkeypatch.setattr(monitors.xbmc, 'getCondVisibility', lambda condition: False)
+    monkeypatch.setattr(monitors.xbmc, 'getInfoLabel', lambda label: '')
+    monkeypatch.setattr(monitors.xbmc, 'sleep', sleep)
+
+    monitor.run()
+
+    assert sleeps == [250]

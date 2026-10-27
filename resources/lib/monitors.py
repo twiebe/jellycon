@@ -52,7 +52,8 @@ class ContextMonitor(threading.Thread):
                     "Container({}).ListItem.Property(id)".format(container_id)
                 )
 
-                xbmc.sleep(100)
+                # The visibility checks take Kodi's GUI lock, so do not poll faster
+                xbmc.sleep(250)
 
         log.debug("ContextMonitor Thread Exited")
 
