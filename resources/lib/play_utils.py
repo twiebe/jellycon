@@ -507,7 +507,18 @@ def play_file(play_info):
     list_item.setPath(playurl)
     list_item = set_list_item_props(item_id, list_item, result, server, listitem_props, item_title)
 
+    # Kodi starts at the resume point itself, seeking after the start
+    # blocks Kodi and shows the first seconds of the video
+    is_video = result.get("Type", "") not in ["MusicAlbum", "Audio", "Music"]
+    duration = (result.get("RunTimeTicks") or 0) / 10000000
+    start_offset = 0
+    if seek_time != 0:
+        start_offset = max(seek_time - jump_back_amount, 0)
+    if is_video and (duration > 0 or start_offset > 0):
+        set_start_offset(list_item, start_offset, duration)
+
     player = xbmc.Player()
+    resolved = False
 
     intro_items = []
     if play_cinema_intros and seek_time == 0:
@@ -521,6 +532,7 @@ def play_file(play_info):
         if len(sys.argv) > 1 and int(sys.argv[1]) > 0:
             # Play from info menu
             xbmcplugin.setResolvedUrl(int(sys.argv[1]), True, list_item)
+            resolved = True
         else:
             '''
             Play from remote control or addon menus.  Doesn't have a handle,
@@ -531,51 +543,52 @@ def play_file(play_info):
             playlist.add(playurl, list_item)
             player.play(playlist)
 
-    if seek_time != 0:
-        player.pause()
-        monitor = xbmc.Monitor()
-        count = 0
-        while not player.isPlaying() and not monitor.abortRequested() and count != 100:
-            count = count + 1
-            xbmc.sleep(100)
+    # Live TV has no duration and must not be moved
+    if resolved and is_video and duration > 0:
+        correct_start_position(player, start_offset)
 
-        if count == 100 or not player.isPlaying() or monitor.abortRequested():
-            log.info("PlaybackResumrAction : Playback item did not get to a play state in 10 seconds so exiting")
-            player.stop()
+
+def set_start_offset(list_item, seconds, duration):
+    '''
+    Make Kodi start playback at the given position itself. Played as a
+    playlist item, Kodi uses StartOffset. A resolved plugin URL ignores it
+    and starts at the resume point instead, which only counts with a total
+    time, so play from start needs a resume point of 0 too.
+    '''
+    list_item.setProperty('StartOffset', str(seconds))
+    total_time = max(duration, seconds + 1)
+    if hasattr(list_item, "getVideoInfoTag"):
+        list_item.getVideoInfoTag().setResumePoint(seconds, total_time)
+    else:
+        list_item.setProperty('TotalTime', str(total_time))
+        list_item.setProperty('ResumeTime', str(seconds))
+
+
+def correct_start_position(player, start_offset):
+    '''
+    Kodi prefers its own saved bookmark of a resolved plugin URL to our
+    resume point, so seek once if playback starts somewhere else
+    '''
+    monitor = xbmc.Monitor()
+    position = 0
+    for count in range(100):
+        if player.isPlaying():
+            try:
+                position = player.getTime()
+            except RuntimeError:
+                position = 0
+            if position > 0:
+                break
+        if monitor.waitForAbort(0.1):
             return
 
-        log.info("PlaybackResumrAction : Playback is Running")
+    if position <= 0:
+        log.info("PlaybackResumeAction : Playback did not start in 10 seconds")
+        return
 
-        seek_to_time = seek_time - jump_back_amount
-        target_seek = (seek_to_time - 10)
-
-        count = 0
-        max_loops = 2 * 120
-        while not monitor.abortRequested() and player.isPlaying() and count < max_loops:
-            log.info("PlaybackResumrAction : Seeking to : {0}".format(seek_to_time))
-            player.seekTime(seek_to_time)
-            current_position = player.getTime()
-            if current_position >= target_seek:
-                break
-            log.info("PlaybackResumrAction : target:{0} current:{1}".format(target_seek, current_position))
-            count = count + 1
-            xbmc.sleep(500)
-
-        if count == max_loops:
-            log.info("PlaybackResumrAction : Playback could not seek to required position")
-            player.stop()
-        else:
-            count = 0
-            while bool(xbmc.getCondVisibility("Player.Paused")) and count < 10:
-                log.info("PlaybackResumrAction : Unpausing playback")
-                player.pause()
-                xbmc.sleep(1000)
-                count = count + 1
-
-            if count == 10:
-                log.info("PlaybackResumrAction : Could not unpause")
-            else:
-                log.info("PlaybackResumrAction : Playback resumed")
+    if abs(position - start_offset) > 10:
+        log.info("PlaybackResumeAction : Started at {0}, seeking to {1}".format(position, start_offset))
+        player.seekTime(start_offset)
 
 
 def __build_label2_from(source):
