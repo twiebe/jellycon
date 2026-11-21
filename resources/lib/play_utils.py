@@ -1472,8 +1472,9 @@ class Service(xbmc.Player):
 class PlaybackService(xbmc.Monitor):
     background_image_cache_thread = None
 
-    def __init__(self, monitor):
+    def __init__(self, monitor, cache_recheck=None):
         self.monitor = monitor
+        self.cache_recheck = cache_recheck
 
     def onNotification(self, sender, method, data):
         if method == 'GUI.OnScreensaverActivated':
@@ -1496,7 +1497,8 @@ class PlaybackService(xbmc.Monitor):
         signal = method.split('.', 1)[-1]
         if signal not in (
             "jellycon_play_action", "jellycon_play_youtube_trailer_action",
-            "set_view", "plugin.video.jellycon_play_action"):
+            "set_view", "plugin.video.jellycon_play_action",
+            "jellycon_cache_check"):
             return
 
         data_json = json.loads(data)
@@ -1518,6 +1520,9 @@ class PlaybackService(xbmc.Monitor):
             view_id = play_info["view_id"]
             log.debug("Setting view id: {0}".format(view_id))
             xbmc.executebuiltin("Container.SetViewMode(%s)" % int(view_id))
+        elif signal == "jellycon_cache_check":
+            if self.cache_recheck is not None:
+                self.cache_recheck.add(play_info["cache_file"], play_info["gui_options"])
 
     def screensaver_activated(self):
         log.debug("Screen Saver Activated")

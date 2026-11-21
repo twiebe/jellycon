@@ -11,7 +11,7 @@ from resources.lib.kodi_utils import HomeWindow
 from resources.lib.websocket_client import WebSocketClient
 from resources.lib.server_detect import check_server
 from resources.lib.monitors import LibraryChangeMonitor, ContextMonitor
-from resources.lib.datamanager import clear_old_cache_data, clear_cached_server_data
+from resources.lib.datamanager import clear_old_cache_data, clear_cached_server_data, CacheRecheckService
 from resources.lib.tracking import set_timing_enabled
 from resources.lib.image_server import HttpImageServerThread
 from resources.lib.playnext import PlayNextService
@@ -62,7 +62,10 @@ image_server.start()
 
 # set up all the services
 monitor = Service()
-playback_service = PlaybackService(monitor)
+# checks cached listings against the server for the plugin
+cache_recheck = CacheRecheckService()
+cache_recheck.start()
+playback_service = PlaybackService(monitor, cache_recheck)
 
 home_window = HomeWindow()
 
@@ -117,6 +120,8 @@ service_tasks.join(2)
 websocket_client = service_tasks.websocket_client
 
 image_server.stop()
+
+cache_recheck.stop()
 
 # stop the WebSocket Client
 websocket_client.stop_client()
