@@ -1728,3 +1728,75 @@ msgstr "After you sign in with a password, asks whether to save it as well. With
 msgctxt "#30804"
 msgid "The user is disabled on the server. JellyCon signs in again once the user is enabled."
 msgstr "The user is disabled on the server. JellyCon signs in again once the user is enabled."
+
+msgctxt "#30805"
+msgid "Artwork size"
+msgstr "Artwork size"
+
+msgctxt "#30806"
+msgid "Poster width"
+msgstr "Poster width"
+
+msgctxt "#30807"
+msgid "Still and landscape width"
+msgstr "Still and landscape width"
+
+msgctxt "#30808"
+msgid "Fanart width"
+msgstr "Fanart width"
+
+msgctxt "#30809"
+msgid "Logo and banner width"
+msgstr "Logo and banner width"
+
+msgctxt "#30810"
+msgid "Auto [default]"
+msgstr "Auto [default]"
+
+msgctxt "#30811"
+msgid "Unlimited"
+msgstr "Unlimited"
+
+msgctxt "#30812"
+msgid "320 px"
+msgstr "320 px"
+
+msgctxt "#30813"
+msgid "480 px"
+msgstr "480 px"
+
+msgctxt "#30814"
+msgid "640 px"
+msgstr "640 px"
+
+msgctxt "#30815"
+msgid "960 px"
+msgstr "960 px"
+
+msgctxt "#30816"
+msgid "1280 px"
+msgstr "1280 px"
+
+msgctxt "#30817"
+msgid "1920 px"
+msgstr "1920 px"
+
+msgctxt "#30818"
+msgid "3840 px"
+msgstr "3840 px"
+
+msgctxt "#30819"
+msgid "Largest width of posters. Auto fits poster cards at the resolution of the GUI: Kodi draws a much larger image on a small card pixelated."
+msgstr "Largest width of posters. Auto fits poster cards at the resolution of the GUI: Kodi draws a much larger image on a small card pixelated."
+
+msgctxt "#30820"
+msgid "Largest width of episode stills and landscape images. Auto fits episode cards at the resolution of the GUI."
+msgstr "Largest width of episode stills and landscape images. Auto fits episode cards at the resolution of the GUI."
+
+msgctxt "#30821"
+msgid "Largest width of fanart, the backgrounds that fill the screen. Auto fits the screen at the resolution of the GUI."
+msgstr "Largest width of fanart, the backgrounds that fill the screen. Auto fits the screen at the resolution of the GUI."
+
+msgctxt "#30822"
+msgid "Largest width of logos, clear art, banners and disc art. Auto fits a logo at the resolution of the GUI. Music and photos keep their artwork size."
+msgstr "Largest width of logos, clear art, banners and disc art. Auto fits a logo at the resolution of the GUI. Music and photos keep their artwork size."

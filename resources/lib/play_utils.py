@@ -8,6 +8,7 @@ import re
 import sys
 import binascii
 import datetime
+import time
 
 import xbmc
 import xbmcgui
@@ -16,6 +17,7 @@ import xbmcvfs
 import xbmcplugin
 from six.moves.urllib.parse import urlencode
 
+from . import art_sizes
 from .jellyfin import api
 from .lazylogger import LazyLogger
 from .dialogs import ResumeDialog
@@ -1474,6 +1476,14 @@ class PlaybackService(xbmc.Monitor):
 
     def __init__(self, monitor):
         self.monitor = monitor
+
+    def onSettingsChanged(self):
+        # new artwork sizes: the service builds its artwork (collages, image
+        # cache) with them, and widgets reload with the new URLs
+        before = art_sizes.art_key()
+        art_sizes.reset()
+        if art_sizes.art_key() != before:
+            HomeWindow().set_property("jellycon_widget_reload", str(time.time()))
 
     def onNotification(self, sender, method, data):
         if method == 'GUI.OnScreensaverActivated':

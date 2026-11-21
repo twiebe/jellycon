@@ -13,6 +13,7 @@ import xbmcvfs
 import xbmcgui
 from six.moves import cPickle
 
+from . import art_sizes
 from .jellyfin import api
 from .lazylogger import LazyLogger
 from .item_functions import extract_item_info
@@ -58,7 +59,8 @@ class DataManager:
         server = self.api.server
 
         m = hashlib.md5()
-        m.update('{}|{}|{}'.format(user_id, server, url).encode())
+        # the artwork URLs of the items are cached too: other sizes, other cache
+        m.update('{}|{}|{}|{}'.format(user_id, server, url, art_sizes.art_key()).encode())
         url_hash = m.hexdigest()
         cache_file = os.path.join(self.addon_dir, "cache_" + url_hash + ".pickle")
 
