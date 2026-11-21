@@ -1,0 +1,58 @@
+# A GitHub release for each release tag, described by the tag's annotation (what
+# kodi-repo's tools/release.sh writes): a tag without one fails the job.
+name: Release from tag
+
+on:
+  push:
+    tags:
+      - 'v*-*'
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+      - name: Create the release from the tag's annotation
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ github.ref_name }}
+          # add-on id=name;..., for the title
+          NAMES: "plugin.video.jellycon=JellyCon"
+          # owner/repo the notes' issue numbers belong to, empty for this one
+          UPSTREAM: ""
+        run: |
+          # checkout leaves a tag peeled to its commit: fetch the tag object itself
+          git fetch --force --no-tags origin "refs/tags/$TAG:refs/tags/$TAG"
+          if [ "$(git cat-file -t "refs/tags/$TAG")" != tag ]; then
+            echo "::error::$TAG is a lightweight tag, it needs an annotation for the release notes (git tag -a)"
+            exit 1
+          fi
+          subject=$(git tag -l --format='%(contents:subject)' "$TAG")
+          body=$(git tag -l --format='%(contents:body)' "$TAG")
+          if [ -z "$body" ]; then
+            echo "::error::the annotation of $TAG has no notes below its subject line"
+            exit 1
+          fi
+          # "Release <id> <version>" -> "<name> <version>"
+          title=${subject#Release }
+          IFS=';'
+          for pair in $NAMES; do
+            title=$(printf '%s' "$title" | sed "s/^${pair%%=*} /${pair#*=} /")
+          done
+          unset IFS
+          {
+            # lines that are no "- " item are headings
+            printf '%s\n' "$body" | sed '/^$/d' | sed 's/^\([^-].*\)$/\n### \1\n/'
+            echo
+            echo "Install from the [twiebe Kodi repository](https://github.com/twiebe/kodi-repo#install)."
+          } > notes.md
+          if [ -n "$UPSTREAM" ]; then
+            sed -i -E "s@(^|[ (,])#([0-9]+)@\1$UPSTREAM#\2@g" notes.md
+          fi
+          gh release create "$TAG" --verify-tag --title "$title" --notes-file notes.md
+
