@@ -87,6 +87,30 @@ class ItemDetails:
     baseline_itemname = None
 
 
+def hdr_type(video_range_type):
+    """Kodi's HDR type of a Jellyfin VideoRangeType, as Jellyfin for Kodi
+    writes it to the library: dolbyvision, hdr10, hlg or empty for SDR."""
+    video_range_type = video_range_type or ""
+    if video_range_type.startswith("DOVI"):
+        return "dolbyvision"
+    if video_range_type in ("HDR10", "HDR10Plus"):
+        return "hdr10"
+    if "HLG" in video_range_type:
+        return "hlg"
+    return ""
+
+
+def audio_codec(codec, profile):
+    """The audio codec as Jellyfin for Kodi names it in the library, which
+    tells DTS-HD MA and HRA from plain DTS by the profile."""
+    profile = (profile or "").lower()
+    if "dts-hd ma" in profile:
+        return "dtshd_ma"
+    if "dts-hd hra" in profile:
+        return "dtshd_hra"
+    return codec
+
+
 def extract_item_info(item, gui_options):
 
     item_details = ItemDetails()
@@ -211,6 +235,7 @@ def extract_item_info(item, gui_options):
                 media_info["codec"] = mediaStream.get("Codec")
                 media_info["height"] = mediaStream.get("Height")
                 media_info["width"] = mediaStream.get("Width")
+                media_info["hdrtype"] = hdr_type(mediaStream.get("VideoRangeType"))
                 aspect_ratio = mediaStream.get("AspectRatio")
                 media_info["aspect"] = aspect_ratio
                 if aspect_ratio and len(aspect_ratio) >= 3:
@@ -225,7 +250,7 @@ def extract_item_info(item, gui_options):
             if stream_type == "Audio":
                 media_info = {}
                 media_info["type"] = "audio"
-                media_info["codec"] = mediaStream.get("Codec")
+                media_info["codec"] = audio_codec(mediaStream.get("Codec"), mediaStream.get("Profile"))
                 media_info["channels"] = mediaStream.get("Channels")
                 media_info["language"] = mediaStream.get("Language")
                 media_info_list.append(media_info)
@@ -608,7 +633,8 @@ def add_gui_item(url, item_details, display_options, folder=True, default_sort=F
                             aspect=stream["apect_ratio"],
                             codec=stream["codec"],
                             width=stream["width"],
-                            height=stream["height"]
+                            height=stream["height"],
+                            hdrtype=stream.get("hdrtype", "")
                         )
                         video_tag.addVideoStream(stream_details)
                     elif stream["type"] == "audio":
@@ -624,9 +650,8 @@ def add_gui_item(url, item_details, display_options, folder=True, default_sort=F
                         )
                         video_tag.addSubtitleStream(stream_details)
 
-            item_properties["TotalSeasons"] = str(item_details.total_seasons)
-            item_properties["TotalEpisodes"] = str(item_details.total_episodes)
-            item_properties["NumEpisodes"] = str(item_details.number_episodes)
+            if folder:
+                item_properties.update(episode_counts(item_details))
 
             video_tag.setRating(item_details.community_rating, 0, "imdb", True)
 
@@ -705,9 +730,8 @@ def add_gui_item(url, item_details, display_options, folder=True, default_sort=F
                         list_item.addStreamInfo('subtitle',
                                                 {'language': stream["language"]})
 
-            item_properties["TotalSeasons"] = str(item_details.total_seasons)
-            item_properties["TotalEpisodes"] = str(item_details.total_episodes)
-            item_properties["NumEpisodes"] = str(item_details.number_episodes)
+            if folder:
+                item_properties.update(episode_counts(item_details))
 
             list_item.setRating("imdb", item_details.community_rating, 0, True)
             item_properties["TotalTime"] = str(item_details.duration)
@@ -733,6 +757,18 @@ def add_gui_item(url, item_details, display_options, folder=True, default_sort=F
     list_item.setProperties(item_properties)
 
     return u, list_item, folder
+
+
+def episode_counts(item_details):
+    """The counts of a show, season or collection under the names Kodi's
+    library gives them; a skin shows "watched/total" from them."""
+    return {
+        "TotalSeasons": str(item_details.total_seasons),
+        "TotalEpisodes": str(item_details.total_episodes),
+        "NumEpisodes": str(item_details.number_episodes),
+        "WatchedEpisodes": str(item_details.watched_episodes),
+        "UnWatchedEpisodes": str(item_details.unwatched_episodes),
+    }
 
 
 def get_art(item, server):
