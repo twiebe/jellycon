@@ -34,6 +34,7 @@ def get_content(url, params):
     log.debug("URL: {0}".format(url))
     log.debug("MediaType: {0}".format(media_type))
     pluginhandle = int(sys.argv[1])
+    set_category(pluginhandle, params)
 
     settings = xbmcaddon.Addon()
     # determine view type, map it from media type to view type
@@ -218,6 +219,14 @@ def get_content(url, params):
     return
 
 
+def set_category(pluginhandle, params):
+    """The name of the entry that opened the list, for the skin's header
+    (Container.FolderName); without one Kodi shows the add-on's name."""
+    name = params.get("name")
+    if name:
+        xbmcplugin.setPluginCategory(pluginhandle, name)
+
+
 def set_sort(pluginhandle, view_type, default_sort):
     log.debug("SETTING_SORT for media type: {0}".format(view_type))
 
@@ -245,11 +254,14 @@ def set_sort(pluginhandle, view_type, default_sort):
         xbmcplugin.addSortMethod(pluginhandle, xbmcplugin.SORT_METHOD_VIDEO_SORT_TITLE_IGNORE_THE)
     elif view_type == "Episodes":
         xbmcplugin.addSortMethod(pluginhandle, xbmcplugin.SORT_METHOD_EPISODE)
+        xbmcplugin.addSortMethod(pluginhandle, xbmcplugin.SORT_METHOD_VIDEO_RUNTIME)
     elif view_type == "Music":
         xbmcplugin.addSortMethod(pluginhandle, xbmcplugin.SORT_METHOD_TRACKNUM)
     else:
         xbmcplugin.addSortMethod(pluginhandle, xbmcplugin.SORT_METHOD_VIDEO_SORT_TITLE_IGNORE_THE)
         xbmcplugin.addSortMethod(pluginhandle, xbmcplugin.SORT_METHOD_VIDEO_YEAR)
+        if view_type in ("Movies", "Music Videos"):
+            xbmcplugin.addSortMethod(pluginhandle, xbmcplugin.SORT_METHOD_VIDEO_RUNTIME)
 
     xbmcplugin.addSortMethod(pluginhandle, xbmcplugin.SORT_METHOD_DATEADDED)
     xbmcplugin.addSortMethod(pluginhandle, xbmcplugin.SORT_METHOD_GENRE)

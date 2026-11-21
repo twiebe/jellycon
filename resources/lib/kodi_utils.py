@@ -4,6 +4,7 @@ from __future__ import (
 
 import sys
 
+from six.moves.urllib.parse import quote
 import xbmcgui
 import xbmcplugin
 import xbmcaddon
@@ -38,6 +39,9 @@ class HomeWindow:
 
 
 def add_menu_directory_item(label, path, folder=True, art=None, properties=None):
+    if "mode=GET_CONTENT" in path:
+        # the list it opens takes the label as its name (dir_functions.set_category)
+        path += "&name=" + quote(label)
     li = xbmcgui.ListItem(label, path=path, offscreen=True)
     if art is None:
         art = {}
