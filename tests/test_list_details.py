@@ -115,3 +115,31 @@ def test_a_video_list_sorts_by_runtime(sorts, view_type):
 def test_a_list_without_a_runtime_does_not_sort_by_it(sorts, view_type):
     dir_functions.set_sort(1, view_type, False)
     assert dir_functions.xbmcplugin.SORT_METHOD_VIDEO_RUNTIME not in sorts
+
+
+# --- the name of a list, for the skin's header (Container.FolderName) -------------------------------
+
+def test_a_menu_entry_names_the_list_it_opens(monkeypatch):
+    from resources.lib import kodi_utils
+    added = []
+    monkeypatch.setattr(kodi_utils.xbmcplugin, 'addDirectoryItem',
+                        lambda handle, url, listitem, isFolder: added.append(url))
+    monkeypatch.setattr(kodi_utils.sys, 'argv', ['plugin://plugin.video.jellycon/', '1', ''])
+    kodi_utils.add_menu_directory_item('Movies - Show All', 'plugin://plugin.video.jellycon/?url=x&mode=GET_CONTENT')
+    kodi_utils.add_menu_directory_item('Movies - Genres', 'plugin://plugin.video.jellycon/?mode=GENRES')
+    assert added == ['plugin://plugin.video.jellycon/?url=x&mode=GET_CONTENT&name=Movies%20-%20Show%20All',
+                     'plugin://plugin.video.jellycon/?mode=GENRES']
+
+
+def test_a_folder_names_the_list_it_opens(gui, monkeypatch):
+    details = item_functions.extract_item_info(series(), GUI_OPTIONS)
+    url, _, _ = item_functions.add_gui_item('/Shows/s1', details, DISPLAY_OPTIONS, folder=True)
+    assert url.endswith('&name=Show')
+
+
+def test_a_list_takes_its_name_as_category(monkeypatch):
+    named = []
+    monkeypatch.setattr(dir_functions.xbmcplugin, 'setPluginCategory', lambda handle, name: named.append(name))
+    dir_functions.set_category(1, {'name': 'Movies - Show All'})
+    dir_functions.set_category(1, {})
+    assert named == ['Movies - Show All']

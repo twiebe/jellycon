@@ -389,6 +389,7 @@ def add_gui_item(url, item_details, display_options, folder=True, default_sort=F
             u += '&name_format=' + quote(item_details.name_format)
         if default_sort:
             u += '&sort=none'
+        u += '&name=' + quote(item_details.name)
     else:
         u = sys.argv[0] + "?item_id=" + url + "&mode=PLAY"
 

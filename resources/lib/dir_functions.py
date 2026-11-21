@@ -34,6 +34,7 @@ def get_content(url, params):
     log.debug("URL: {0}".format(url))
     log.debug("MediaType: {0}".format(media_type))
     pluginhandle = int(sys.argv[1])
+    set_category(pluginhandle, params)
 
     settings = xbmcaddon.Addon()
     # determine view type, map it from media type to view type
@@ -216,6 +217,14 @@ def get_content(url, params):
         progress.close()
 
     return
+
+
+def set_category(pluginhandle, params):
+    """The name of the entry that opened the list, for the skin's header
+    (Container.FolderName); without one Kodi shows the add-on's name."""
+    name = params.get("name")
+    if name:
+        xbmcplugin.setPluginCategory(pluginhandle, name)
 
 
 def set_sort(pluginhandle, view_type, default_sort):
