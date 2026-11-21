@@ -6,7 +6,7 @@ from unittest import mock
 
 import pytest
 
-from resources.lib import item_functions
+from resources.lib import dir_functions, item_functions
 
 GUI_OPTIONS = {'server': 'http://jellyfin:8096', 'name_format': None, 'name_format_type': ''}
 DISPLAY_OPTIONS = {'addCounts': False, 'addResumePercent': False, 'addSubtitleAvailable': False,
@@ -96,3 +96,22 @@ def test_a_show_counts_its_episodes_like_the_library(gui):
     assert properties['TotalEpisodes'] == '12'
     assert properties['WatchedEpisodes'] == '7'
     assert properties['UnWatchedEpisodes'] == '5'
+
+
+@pytest.fixture
+def sorts(monkeypatch):
+    added = []
+    monkeypatch.setattr(dir_functions.xbmcplugin, 'addSortMethod', lambda handle, method: added.append(method))
+    return added
+
+
+@pytest.mark.parametrize('view_type', ['Movies', 'Episodes', 'Music Videos'])
+def test_a_video_list_sorts_by_runtime(sorts, view_type):
+    dir_functions.set_sort(1, view_type, False)
+    assert dir_functions.xbmcplugin.SORT_METHOD_VIDEO_RUNTIME in sorts
+
+
+@pytest.mark.parametrize('view_type', ['BoxSets', 'Series', 'Seasons', 'Music'])
+def test_a_list_without_a_runtime_does_not_sort_by_it(sorts, view_type):
+    dir_functions.set_sort(1, view_type, False)
+    assert dir_functions.xbmcplugin.SORT_METHOD_VIDEO_RUNTIME not in sorts
