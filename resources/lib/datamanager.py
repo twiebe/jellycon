@@ -11,7 +11,7 @@ import xbmc
 import xbmcaddon
 import xbmcvfs
 import xbmcgui
-from six.moves import cPickle
+from six.moves import cPickle, queue
 
 from .jellyfin import api
 from .lazylogger import LazyLogger
@@ -19,7 +19,7 @@ from .item_functions import extract_item_info
 from .kodi_utils import HomeWindow
 from .tracking import timer
 from .filelock import FileLock
-from .utils import translate_string, load_user_details, translate_path
+from .utils import translate_string, load_user_details, translate_path, send_event_notification
 
 log = LazyLogger(__name__)
 
@@ -65,8 +65,7 @@ class DataManager:
         item_list = None
         total_records = 0
         baseline_name = None
-        cache_thread = CacheManagerThread()
-        cache_thread.gui_options = gui_options
+        cached_item = None
 
         home_window.set_property(cache_file, "true")
 
@@ -84,7 +83,7 @@ class DataManager:
                 with open(cache_file, 'rb') as handle:
                     try:
                         cache_item = cPickle.load(handle)
-                        cache_thread.cached_item = cache_item
+                        cached_item = cache_item
                         item_list = cache_item.item_list
                         total_records = cache_item.total_records
                     except Exception as err:
@@ -126,129 +125,190 @@ class DataManager:
             cache_item.date_last_used = time.time()
             cache_item.total_records = total_records
 
-            cache_thread.cached_item = cache_item
+            cached_item = cache_item
 
-        if not use_cache:
-            cache_thread = None
+        cache_check = None
+        if use_cache:
+            cache_check = CacheCheck(cached_item, gui_options)
 
-        return cache_file, item_list, total_records, cache_thread
+        return cache_file, item_list, total_records, cache_check
 
 
-class CacheManagerThread(threading.Thread):
-    cached_item = None
-    gui_options = None
+def get_data_hash(items):
 
-    def __init__(self, *args):
-        threading.Thread.__init__(self, *args)
+    m = hashlib.md5()
+    for item in items:
+        item_string = "%s_%s_%s_%s_%s_%s" % (
+            item.name,
+            item.play_count,
+            item.favorite,
+            item.resume_time,
+            item.recursive_unplayed_items_count,
+            item.etag
+        )
+        item_string = item_string.encode("UTF-8")
+        m.update(item_string)
 
-    @staticmethod
-    def get_data_hash(items):
+    return m.hexdigest()
 
-        m = hashlib.md5()
-        for item in items:
-            item_string = "%s_%s_%s_%s_%s_%s" % (
-                item.name,
-                item.play_count,
-                item.favorite,
-                item.resume_time,
-                item.recursive_unplayed_items_count,
-                item.etag
-            )
-            item_string = item_string.encode("UTF-8")
-            m.update(item_string)
 
-        return m.hexdigest()
+def save_cache_item(cache_item):
+    with FileLock(cache_item.file_path + ".locked", timeout=5):
+        with open(cache_item.file_path, 'wb') as handle:
+            cPickle.dump(cache_item, handle, protocol=cPickle.HIGHEST_PROTOCOL)
+
+
+class CacheCheck:
+    """
+    Cache work left for a listing once it is built. The plugin runs it
+    before it returns the listing. Fresh data is saved right away, the
+    check of cached data against the server goes to the service: while a
+    thread of the plugin runs, Kodi keeps the invocation alive, and
+    stopping it then (e.g. on a quick Back) can crash Kodi.
+    """
+
+    def __init__(self, cached_item, gui_options):
+        self.cached_item = cached_item
+        self.gui_options = gui_options
 
     def run(self):
-
-        log.debug("CacheManagerThread : Started")
-
-        home_window = HomeWindow()
-        is_fresh = False
+        cached_item = self.cached_item
 
         # if the data is fresh then just save it
         # if the data is to old do a reload
-        if (self.cached_item.date_saved is not None
-                and (time.time() - self.cached_item.date_saved) < 20
-                and self.cached_item.last_action == "fresh_data"):
-            is_fresh = True
+        is_fresh = (cached_item.date_saved is not None
+                    and (time.time() - cached_item.date_saved) < 20
+                    and cached_item.last_action == "fresh_data")
 
-        if is_fresh and self.cached_item.item_list is not None and len(self.cached_item.item_list) > 0:
-            log.debug("CacheManagerThread : Saving fresh data")
-            cached_hash = self.get_data_hash(self.cached_item.item_list)
-            self.cached_item.item_list_hash = cached_hash
-            self.cached_item.last_action = "cached_data"
-            self.cached_item.date_saved = time.time()
-            self.cached_item.date_last_used = time.time()
-
-            log.debug("CacheManagerThread : Saving New Data loops")
-
-            with FileLock(self.cached_item.file_path + ".locked", timeout=5):
-                with open(self.cached_item.file_path, 'wb') as handle:
-                    cPickle.dump(self.cached_item, handle, protocol=cPickle.HIGHEST_PROTOCOL)
-
+        if is_fresh and cached_item.item_list:
+            log.debug("CacheCheck : Saving fresh data")
+            cached_item.item_list_hash = get_data_hash(cached_item.item_list)
+            cached_item.last_action = "cached_data"
+            cached_item.date_saved = time.time()
+            cached_item.date_last_used = time.time()
+            save_cache_item(cached_item)
         else:
-            log.debug("CacheManagerThread : Reloading to recheck data hashes")
-            cached_hash = self.cached_item.item_list_hash
-            log.debug("CacheManagerThread : Cache Hash : {0}".format(cached_hash))
+            log.debug("CacheCheck : Asking the service to recheck the cached data")
+            send_event_notification("jellycon_cache_check", {
+                "cache_file": os.path.basename(cached_item.file_path),
+                "gui_options": self.gui_options
+            })
 
-            data_manager = DataManager()
-            results = data_manager.api.get(self.cached_item.items_url)
-            if results is None:
-                results = []
 
-            if isinstance(results, dict) and results.get("Items") is not None:
-                results = results.get("Items", [])
-            elif isinstance(results, list) and len(results) > 0 and results[0].get("Items") is not None:
-                results = results[0].get("Items")
+def recheck_cache(cache_file, gui_options):
+    """
+    Reload the items of a cached listing and compare them with the cache.
+    If they changed, save them and refresh the container. Runs in the
+    service.
+    """
+    cache_path = os.path.join(DataManager.addon_dir, os.path.basename(cache_file))
+    if not os.path.isfile(cache_path):
+        log.debug("recheck_cache : Cache file is gone : {0}".format(cache_file))
+        return
 
-            total_records = 0
-            if isinstance(results, dict):
-                total_records = results.get("TotalRecordCount", 0)
+    try:
+        with FileLock(cache_path + ".locked", timeout=5):
+            with open(cache_path, 'rb') as handle:
+                cached_item = cPickle.load(handle)
+    except Exception as err:
+        log.error("recheck_cache : Pickle Data Load Failed : {0}".format(err))
+        return
 
-            loaded_items = []
-            for item in results:
-                item_data = extract_item_info(item, self.gui_options)
-                loaded_items.append(item_data)
+    log.debug("recheck_cache : Reloading to recheck data hashes")
+    cached_hash = cached_item.item_list_hash
+    log.debug("recheck_cache : Cache Hash : {0}".format(cached_hash))
 
-            if loaded_items is None or len(loaded_items) == 0:
-                log.debug("CacheManagerThread : loaded_items is None or Empty so not saving it")
+    results = api.get(cached_item.items_url)
+    if results is None:
+        results = []
+
+    total_records = 0
+    if isinstance(results, dict):
+        total_records = results.get("TotalRecordCount", 0)
+
+    if isinstance(results, dict) and results.get("Items") is not None:
+        results = results.get("Items", [])
+    elif isinstance(results, list) and len(results) > 0 and results[0].get("Items") is not None:
+        results = results[0].get("Items")
+
+    loaded_items = []
+    for item in results:
+        item_data = extract_item_info(item, gui_options)
+        loaded_items.append(item_data)
+
+    if len(loaded_items) == 0:
+        log.debug("recheck_cache : loaded_items is Empty so not saving it")
+        return
+
+    loaded_hash = get_data_hash(loaded_items)
+    log.debug("recheck_cache : Loaded Hash : {0}".format(loaded_hash))
+
+    # if they dont match then save the data and trigger a content reload
+    if cached_hash != loaded_hash:
+        log.debug("recheck_cache : Hashes different, saving new data and reloading container")
+
+        cached_item.item_list = loaded_items
+        cached_item.item_list_hash = loaded_hash
+        cached_item.last_action = "fresh_data"
+        cached_item.date_saved = time.time()
+        cached_item.date_last_used = time.time()
+        cached_item.total_records = total_records
+        save_cache_item(cached_item)
+
+        # TODO: probably should only set this in simple check mode
+        current_time_stamp = str(time.time())
+        HomeWindow().set_property("jellycon_widget_reload", current_time_stamp)
+        log.debug("Setting New Widget Hash: {0}".format(current_time_stamp))
+
+        log.debug("recheck_cache : Sending container refresh")
+        xbmc.executebuiltin("Container.Refresh")
+
+    else:
+        cached_item.date_last_used = time.time()
+        save_cache_item(cached_item)
+        log.debug("recheck_cache : Updating last used date for cache data")
+
+
+class CacheRecheckService(threading.Thread):
+    """
+    Runs the cache checks the plugin asks for (jellycon_cache_check) one
+    after the other, on its own thread so the service does not wait for
+    the server.
+    """
+
+    def __init__(self):
+        super(CacheRecheckService, self).__init__()
+        self.requests = queue.Queue()
+        self.pending = set()
+        self.lock = threading.Lock()
+        self.stop_thread = False
+
+    def add(self, cache_file, gui_options):
+        with self.lock:
+            # a listing opened again before its check ran is checked once
+            if cache_file in self.pending:
                 return
+            self.pending.add(cache_file)
+        self.requests.put((cache_file, gui_options))
 
-            loaded_hash = self.get_data_hash(loaded_items)
-            log.debug("CacheManagerThread : Loaded Hash : {0}".format(loaded_hash))
+    def stop(self):
+        self.stop_thread = True
+        self.requests.put(None)
 
-            # if they dont match then save the data and trigger a content reload
-            if cached_hash != loaded_hash:
-                log.debug("CacheManagerThread : Hashes different, saving new data and reloading container")
-
-                self.cached_item.item_list = loaded_items
-                self.cached_item.item_list_hash = loaded_hash
-                self.cached_item.last_action = "fresh_data"
-                self.cached_item.date_saved = time.time()
-                self.cached_item.date_last_used = time.time()
-                self.cached_item.total_records = total_records
-
-                with FileLock(self.cached_item.file_path + ".locked", timeout=5):
-                    with open(self.cached_item.file_path, 'wb') as handle:
-                        cPickle.dump(self.cached_item, handle, protocol=cPickle.HIGHEST_PROTOCOL)
-
-                # TODO: probably should only set this in simple check mode
-                current_time_stamp = str(time.time())
-                home_window.set_property("jellycon_widget_reload", current_time_stamp)
-                log.debug("Setting New Widget Hash: {0}".format(current_time_stamp))
-
-                log.debug("CacheManagerThread : Sending container refresh")
-                xbmc.executebuiltin("Container.Refresh")
-
-            else:
-                self.cached_item.date_last_used = time.time()
-                with FileLock(self.cached_item.file_path + ".locked", timeout=5):
-                    with open(self.cached_item.file_path, 'wb') as handle:
-                        cPickle.dump(self.cached_item, handle, protocol=cPickle.HIGHEST_PROTOCOL)
-                log.debug("CacheManagerThread : Updating last used date for cache data")
-
-        log.debug("CacheManagerThread : Exited")
+    def run(self):
+        log.debug("CacheRecheckService : Started")
+        while not self.stop_thread:
+            request = self.requests.get()
+            if request is None:
+                continue
+            cache_file, gui_options = request
+            with self.lock:
+                self.pending.discard(cache_file)
+            try:
+                recheck_cache(cache_file, gui_options)
+            except Exception as err:
+                log.error("CacheRecheckService : Cache check failed : {0}".format(err))
+        log.debug("CacheRecheckService : Exited")
 
 
 def clear_cached_server_data(display=True):
