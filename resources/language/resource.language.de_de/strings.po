@@ -1251,3 +1251,75 @@ msgstr ""
 msgctxt "#30682"
 msgid "Quick Connect timed out. Please try again."
 msgstr "Schnellverbindung hatte Zeitüberschreitung. Bitte erneut versuchen."
+
+msgctxt "#30805"
+msgid "Artwork size"
+msgstr "Bildgröße"
+
+msgctxt "#30806"
+msgid "Poster width"
+msgstr "Posterbreite"
+
+msgctxt "#30807"
+msgid "Still and landscape width"
+msgstr "Breite von Standbildern und Landscape"
+
+msgctxt "#30808"
+msgid "Fanart width"
+msgstr "Fanart-Breite"
+
+msgctxt "#30809"
+msgid "Logo and banner width"
+msgstr "Breite von Logos und Bannern"
+
+msgctxt "#30810"
+msgid "Auto [default]"
+msgstr "Auto [Standard]"
+
+msgctxt "#30811"
+msgid "Unlimited"
+msgstr "Unbegrenzt"
+
+msgctxt "#30812"
+msgid "320 px"
+msgstr "320 px"
+
+msgctxt "#30813"
+msgid "480 px"
+msgstr "480 px"
+
+msgctxt "#30814"
+msgid "640 px"
+msgstr "640 px"
+
+msgctxt "#30815"
+msgid "960 px"
+msgstr "960 px"
+
+msgctxt "#30816"
+msgid "1280 px"
+msgstr "1280 px"
+
+msgctxt "#30817"
+msgid "1920 px"
+msgstr "1920 px"
+
+msgctxt "#30818"
+msgid "3840 px"
+msgstr "3840 px"
+
+msgctxt "#30819"
+msgid "Largest width of posters. Auto fits poster cards at the resolution of the GUI: Kodi draws a much larger image on a small card pixelated."
+msgstr "Größte Breite von Postern. Auto passt zu Poster-Kacheln in der Auflösung der Oberfläche: Ein viel größeres Bild zeigt Kodi auf einer kleinen Kachel pixelig."
+
+msgctxt "#30820"
+msgid "Largest width of episode stills and landscape images. Auto fits episode cards at the resolution of the GUI."
+msgstr "Größte Breite von Episoden-Standbildern und Landscape-Bildern. Auto passt zu Episoden-Kacheln in der Auflösung der Oberfläche."
+
+msgctxt "#30821"
+msgid "Largest width of fanart, the backgrounds that fill the screen. Auto fits the screen at the resolution of the GUI."
+msgstr "Größte Breite von Fanart, den Hintergrundbildern, die den Bildschirm füllen. Auto passt zum Bildschirm in der Auflösung der Oberfläche."
+
+msgctxt "#30822"
+msgid "Largest width of logos, clear art, banners and disc art. Auto fits a logo at the resolution of the GUI. Music and photos keep their artwork size."
+msgstr "Größte Breite von Logos, Clear Art, Bannern und Disc Art. Auto passt zu einem Logo in der Auflösung der Oberfläche. Musik und Fotos behalten ihre Bildgröße."

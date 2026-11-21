@@ -24,6 +24,7 @@ from kodi_six.utils import py2_encode, py2_decode
 from six import ensure_text, ensure_binary, text_type
 from six.moves.urllib.parse import urlencode
 
+from . import art_sizes
 from .lazylogger import LazyLogger
 from .kodi_utils import HomeWindow
 
@@ -384,7 +385,9 @@ def get_art_url(data, art_type, parent=False, index=0, server=None):
 
     artwork = "{}/Items/{}/Images/{}/{}?Format=original&Tag={}".format(
         server, item_id, art_type, index, image_tag)
-    return artwork
+    # the server scales it to the size setting of its kind
+    return artwork + art_sizes.size_query(
+        art_sizes.art_kind(art_type, item_type, parent))
 
 
 def image_url(item_id, art_type, index, width, height, image_tag, server):
