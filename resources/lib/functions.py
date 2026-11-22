@@ -5,15 +5,12 @@ from __future__ import (
 import sys
 import os
 import time
-import cProfile
-import pstats
 import traceback
 
 import xbmcplugin
 import xbmcgui
 import xbmcaddon
 import xbmc
-from six import StringIO
 from six.moves.urllib.parse import quote, unquote, parse_qsl, urlencode
 
 from .jellyfin import api
@@ -42,6 +39,7 @@ from .dir_functions import get_content, process_directory
 from .tracking import timer
 from .skin_cloner import clone_default_skin
 from .play_utils import play_file
+from .item_functions import extract_item_info, add_gui_item
 
 __addon__ = xbmcaddon.Addon()
 __addondir__ = translate_path(__addon__.getAddonInfo('profile'))
@@ -83,6 +81,8 @@ def main_entry_point():
     if profile_count > 0:
         profile_count = profile_count - 1
         settings.setSetting('profile_count', str(profile_count))
+        # Imported here, the profiler modules delay every plugin call
+        import cProfile
         pr = cProfile.Profile()
         pr.enable()
 
@@ -139,6 +139,9 @@ def main_entry_point():
         show_menu(params)
     elif mode == "CLONE_SKIN":
         clone_default_skin()
+    elif mode == "SHOW_INFO":
+        log.debug("SHOW_INFO called with params: {0}", params)
+        show_info_dialog(params)
     elif mode == "SHOW_SETTINGS":
         __addon__.openSettings()
         window = xbmcgui.getCurrentWindowId()
@@ -181,6 +184,8 @@ def main_entry_point():
 
     if pr:
         pr.disable()
+        import pstats
+        from six import StringIO
 
         file_time_stamp = time.strftime("%Y%m%d-%H%M%S")
         tab_file_name = "{}jellycon-profile({}).txt".format(
@@ -694,8 +699,76 @@ def show_menu(params):
     elif selected_action == "refresh_images":
         CacheArtwork().delete_cached_images(item_id)
 
-    elif selected_action == "info":
-        xbmc.executebuiltin("Dialog.Close(all,true)")
+    elif selected_action == "info":        
+        show_info_dialog(params, result)
+
+
+def show_info_dialog(params, item=None):
+    """
+    Open Kodi's information dialog for a single item, with its cast.    
+    """
+    item_id = params.get("item_id")
+    if not item_id:
+        log.debug("show_info_dialog called without an item_id")
+        return
+
+    settings = xbmcaddon.Addon()
+
+    try:
+        if item is None:
+            url = "/Users/{}/Items/{}?format=json".format(get_current_user_id(), item_id)
+            item = api.get(url)
+        if not item:
+            raise ValueError("no data returned for item {}".format(item_id))
+
+        gui_options = {
+            "server": settings.getSetting("server_address"),
+            "name_format": None,
+            "name_format_type": None
+        }
+        display_options = {
+            "addCounts": False,
+            "addResumePercent": False,
+            "addSubtitleAvailable": False,
+            "addUserRatings": settings.getSetting("add_user_ratings") == "true"
+        }
+
+        item_details = extract_item_info(item, gui_options)
+        log.debug("Info dialog for {0}: {1} people returned, {2} cast members".format(
+            item_id, len(item.get("People") or []), len(item_details.cast or [])))
+
+        if item_details.is_folder:
+            path = ("/Users/{userid}/items"
+                    "?ParentId=" + item_details.id +
+                    "&IsVirtualUnAired=false"
+                    "&IsMissing=false"
+                    "&Fields=" + get_default_filters() +
+                    "&format=json")
+            gui_item = add_gui_item(path, item_details, display_options, folder=True)
+        else:
+            gui_item = add_gui_item(item_details.id, item_details, display_options, folder=False)
+
+        if not gui_item:
+            raise ValueError("could not build list item for {}".format(item_id))
+
+        list_item = gui_item[1]
+        # tells the info dialog monitor (info_monitor.py) that the cast is
+        # already loaded, so it doesn't intercept this dialog again
+        list_item.setProperty("jellycon_info_loaded", "true")
+
+        # Everything is ready, so swap dialogs back to back to avoid flicker.
+        # A modal dialog is only active here if something is still on screen        
+        if xbmc.getCondVisibility("System.HasActiveModalDialog"):
+            xbmc.executebuiltin("Dialog.Close(all,true)", True)
+        xbmcgui.Dialog().info(list_item)
+    except Exception as err:
+        log.error("Unable to show info dialog with cast for {0}: {1}".format(item_id, err))
+        if xbmc.getCondVisibility("Window.IsActive(movieinformation)"):
+            # Kodi's native info dialog is already showing, leave it alone
+            return
+        # fall back to Kodi's own info dialog (without the cast). Tell the
+        # info dialog monitor not to intercept it, otherwise it would loop
+        HomeWindow().set_property("jellycon_info_fallback", str(time.time()))
         xbmc.executebuiltin("Action(info)")
 
 

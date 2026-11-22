@@ -1323,3 +1323,11 @@ msgstr "Größte Breite von Fanart, den Hintergrundbildern, die den Bildschirm f
 msgctxt "#30822"
 msgid "Largest width of logos, clear art, banners and disc art. Auto fits a logo at the resolution of the GUI. Music and photos keep their artwork size."
 msgstr "Größte Breite von Logos, Clear Art, Bannern und Disc Art. Auto passt zu einem Logo in der Auflösung der Oberfläche. Musik und Fotos behalten ihre Bildgröße."
+
+msgctxt "#30823"
+msgid "Load cast when the information opens"
+msgstr "Darsteller beim Öffnen der Information laden"
+
+msgctxt "#30824"
+msgid "Loads cast and crew of an item from the server when its information opens, which then opens a second time with them. Skins that show cast and crew from TMDb switch this off for themselves."
+msgstr "Lädt Darsteller und Crew eines Titels vom Server, wenn seine Information öffnet; sie öffnet dann ein zweites Mal mit ihnen. Skins, die Darsteller und Crew von TMDb zeigen, schalten das für sich ab."

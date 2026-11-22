@@ -1800,3 +1800,11 @@ msgstr "Largest width of fanart, the backgrounds that fill the screen. Auto fits
 msgctxt "#30822"
 msgid "Largest width of logos, clear art, banners and disc art. Auto fits a logo at the resolution of the GUI. Music and photos keep their artwork size."
 msgstr "Largest width of logos, clear art, banners and disc art. Auto fits a logo at the resolution of the GUI. Music and photos keep their artwork size."
+
+msgctxt "#30823"
+msgid "Load cast when the information opens"
+msgstr "Load cast when the information opens"
+
+msgctxt "#30824"
+msgid "Loads cast and crew of an item from the server when its information opens, which then opens a second time with them. Skins that show cast and crew from TMDb switch this off for themselves."
+msgstr "Loads cast and crew of an item from the server when its information opens, which then opens a second time with them. Skins that show cast and crew from TMDb switch this off for themselves."
