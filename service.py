@@ -12,6 +12,7 @@ from resources.lib.websocket_client import WebSocketClient
 from resources.lib.server_detect import check_server
 from resources.lib.monitors import LibraryChangeMonitor, ContextMonitor
 from resources.lib.datamanager import clear_old_cache_data, clear_cached_server_data, CacheRecheckService
+from resources.lib.info_monitor import InfoDialogMonitor
 from resources.lib.tracking import set_timing_enabled
 from resources.lib.image_server import HttpImageServerThread
 from resources.lib.playnext import PlayNextService
@@ -92,6 +93,10 @@ if context_menu:
     context_monitor = ContextMonitor()
     context_monitor.start()
 
+
+info_dialog_monitor = InfoDialogMonitor()
+info_dialog_monitor.start()
+
 # Start the skip service monitor
 intro_skipper = IntroSkipperService(monitor)
 intro_skipper.start()
@@ -139,6 +144,8 @@ if context_monitor:
 
 if intro_skipper:
     intro_skipper.stop_service()
+
+info_dialog_monitor.stop_monitor()
 
 # clear user and token when logging off
 home_window.clear_property("user_name")

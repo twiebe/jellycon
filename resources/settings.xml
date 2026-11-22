@@ -453,6 +453,7 @@
 				<setting id="include_people" type="boolean" label="30183" help="30753">
 					<level>0</level>
 					<default>false</default>
+					<visible>false</visible>
 					<control type="toggle"/>
 				</setting>
 				<setting id="hide_unwatched_details" type="boolean" label="30023" help="30754">
