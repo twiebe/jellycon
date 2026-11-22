@@ -716,7 +716,7 @@ def show_info_dialog(params, item=None):
 
     try:
         if item is None:
-            url = "/Users/{}/Items/{}?format=json".format(api.user_id, item_id)
+            url = "/Users/{}/Items/{}?format=json".format(get_current_user_id(), item_id)
             item = api.get(url)
         if not item:
             raise ValueError("no data returned for item {}".format(item_id))

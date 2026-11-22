@@ -31,6 +31,16 @@ def test_show_menu_uses_user_who_logged_in_after_start(monkeypatch):
     assert requested[0].startswith('/Users/user-id/Items/item')
 
 
+def test_info_dialog_asks_for_the_item_of_the_user_who_logged_in(monkeypatch):
+    requested = []
+    monkeypatch.setattr(utils, 'load_user_details', lambda: {'user_id': 'user-id'})
+    monkeypatch.setattr(functions.api, 'get', lambda path: requested.append(path) or {})
+
+    functions.show_info_dialog({'item_id': 'item'})
+
+    assert requested == ['/Users/user-id/Items/item?format=json']
+
+
 def test_mark_unwatched_reports_failure(monkeypatch):
     notified = []
     refreshed = []
