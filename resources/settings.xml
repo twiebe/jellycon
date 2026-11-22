@@ -456,6 +456,11 @@
 					<visible>false</visible>
 					<control type="toggle"/>
 				</setting>
+				<setting id="info_load_people" type="boolean" label="30823" help="30824">
+					<level>0</level>
+					<default>true</default>
+					<control type="toggle"/>
+				</setting>
 				<setting id="hide_unwatched_details" type="boolean" label="30023" help="30754">
 					<level>0</level>
 					<default>false</default>

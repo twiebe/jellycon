@@ -9,6 +9,8 @@ import threading
 import time
 
 import xbmc
+import xbmcaddon
+import xbmcgui
 
 from .lazylogger import LazyLogger
 from .kodi_utils import HomeWindow
@@ -18,6 +20,28 @@ log = LazyLogger(__name__)
 INFO_WINDOW = "movieinformation"
 LOADED_PROPERTY = "jellycon_info_loaded"
 FALLBACK_PROPERTY = "jellycon_info_fallback"
+SETTING = "info_load_people"
+# A skin that shows cast and crew from elsewhere (TMDb Helper) sets this
+# home window property to its own id, e.g. SetProperty(JellyCon.SkipInfoLoad,skin.nightcity,home)
+SKIP_PROPERTY = "JellyCon.SkipInfoLoad"
+
+
+def load_enabled():
+    return xbmcaddon.Addon().getSetting(SETTING) != "false"
+
+
+def skipped_by_skin():
+    return xbmcgui.Window(10000).getProperty(SKIP_PROPERTY) == xbmc.getSkinDir()
+
+
+class _SettingsMonitor(xbmc.Monitor):
+
+    def __init__(self, on_change):
+        xbmc.Monitor.__init__(self)
+        self._on_change = on_change
+
+    def onSettingsChanged(self):
+        self._on_change()
 
 
 class InfoDialogMonitor(threading.Thread):
@@ -26,14 +50,25 @@ class InfoDialogMonitor(threading.Thread):
         threading.Thread.__init__(self)
         self.daemon = True
         self._stop_event = threading.Event()
-        self._monitor = xbmc.Monitor()
+        self._settings_changed = threading.Event()
+        self._monitor = _SettingsMonitor(self._settings_changed.set)
+        self.enabled = load_enabled()
 
     def stop_monitor(self):
         self._stop_event.set()
+        self._settings_changed.set()
 
     def run(self):
         was_active = False
         while not self._stop_event.is_set() and not self._monitor.abortRequested():
+            if self._settings_changed.is_set():
+                self._settings_changed.clear()
+                self.enabled = load_enabled()
+            if not self.enabled:
+                # Switched off: no polling until the setting changes or the service stops
+                self._settings_changed.wait()
+                was_active = False
+                continue
             active = xbmc.getCondVisibility(
                 "Window.IsActive({})".format(INFO_WINDOW)
             )
@@ -48,6 +83,8 @@ class InfoDialogMonitor(threading.Thread):
                 break
 
     def _on_info_opened(self):
+        if skipped_by_skin():
+            return
         item_id = ""
         item_type = ""
         # the dialog's item may take a moment to become available
