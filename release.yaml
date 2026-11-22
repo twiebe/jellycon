@@ -1,9 +1,9 @@
-version: '1:1.0.2-7'
+version: '1:1.1.0-1'
 changelog: |-
-  Fork of JellyCon 1.0.2 (twiebe)
+  Fork of JellyCon 1.1.0 (twiebe)
   -------------------------------
   + Show server errors to the user and let them resolve rejected logins
-  + Don't keep Kodi from exiting: interruptible keepalive, faster service stop
+  + Don't keep Kodi from exiting: faster service stop
   + Settings converted to settings format version 1
   + Short help text for every visible setting
   + Context menu works again when Kodi started before the user logged in
@@ -12,28 +12,11 @@ changelog: |-
   + Playback, stop and the context menu react faster, background work no longer holds up the player
   + Resume starts at the resume point right away, without a second seek
   + Movie and show lists carry runtime, resolution, HDR, codec, audio channels and episode counts like the library, for skins that show them (Nightcity 0.4.94)
-  + Sort movie and episode lists by runtime
   + A list is named after the menu entry that opened it
   + Kodi no longer crashes when Back is pressed twice quickly while a list loads; cached lists are checked against the server by the service
   + Artwork width per kind (posters, fanart, thumbs, logos ...) that fits the GUI, under Artwork size in the settings: smaller images load faster and take less memory on small devices
+  + Loading the cast when the information opens can be switched off; skins that show cast and crew from TMDb, like Nightcity 0.4.96, switch it off for themselves
 dependencies:
-  py2:
-    - addon: 'xbmc.python'
-      version: '2.25.0'
-    - addon: 'script.module.requests'
-      version: '2.22.0'
-    - addon: 'script.module.dateutil'
-      version: '2.8.1'
-    - addon: 'script.module.six'
-      version: '1.13.0'
-    - addon: 'script.module.kodi-six'
-      version: '0.0.7'
-    - addon: 'script.module.addon.signals'
-      version: '0.0.5'
-    - addon: 'script.module.futures'
-      version: '2.2.0'
-    - addon: 'script.module.websocket'
-      version: '0.57.0'
   py3:
     - addon: 'xbmc.python'
       version: '3.0.0'
